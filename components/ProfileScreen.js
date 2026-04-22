@@ -13,6 +13,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
+const MASCOT_URI =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ── Colour tokens (same as HomeScreen) ─────────────────────────────────────
@@ -119,7 +122,7 @@ export default function ProfileScreen() {
       {/* ── HEADER ──────────────────────────────────────────────────────── */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
-          <MaterialIcons name="person" size={20} color={C.primary} />
+          <Image source={{ uri: MASCOT_URI }} style={styles.headerMascot} />
           <Text style={styles.headerTitle}>Profil Petualang</Text>
         </View>
         <View style={styles.pointsBadge}>
@@ -223,7 +226,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── Daily Quest Card ──────────────────────────────────────────── */}
-        <Pressable style={styles.questCard}>
+        <Pressable style={styles.questCard} onPress={() => router.push('/quiz')}>
           <Image
             source={{
               uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKKjO1Gi4wCwkEPtwOHnjrhZx26Ooz4crpeGaphXyTb71XEuM3-duEGCOsdtl-zFbAEvDnR3rEoaVcEO9aP4ZO8C9EJl_rxJ9VdmIIyZKaEawsCg9wF_ADkzThKRn_7WesRY7yozRD1ciuL3sW5xXj4kTvZoEspNMZFCMC-Ca7HlygWLryZW9qp-qoFdV1EvgaS32vvgnjWvcU4yKXKQ55rkwmHbX72k1P97YG_yIrHo1FSwpA42iNOdvzeRCQLxoJPVHsJm6IIDU',
@@ -243,9 +246,9 @@ export default function ProfileScreen() {
       <View style={[styles.navbar, { paddingBottom: insets.bottom + 8 }]}>
         <NavItem icon="home" label="Home" onPress={() => router.push('/home')} />
         <NavItem icon="extension" label="Quiz" onPress={() => router.push('/quiz')} />
-        <NavItem icon="face" label="Karakter" />
-        <NavItem icon="map" label="Misi" />
-        <NavItem icon="person" label="Profil" active />
+        <NavItem icon="face" label="Karakter" onPress={() => router.push('/karakter')} />
+        <NavItem icon="map" label="Misi" onPress={() => router.push('/misi')} />
+        <NavItem icon="person" label="Profil" active onPress={() => router.push('/profil')} />
       </View>
     </View>
   );
@@ -270,7 +273,14 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+  },
+  headerMascot: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: C.primary,
   },
   headerTitle: {
     fontSize: 18,

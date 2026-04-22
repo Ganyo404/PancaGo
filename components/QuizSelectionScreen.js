@@ -193,9 +193,9 @@ export default function QuizSelectionScreen() {
       <View style={[styles.navbar, { paddingBottom: insets.bottom + 8 }]}>
         <NavItem icon="home"      label="Home"     onPress={() => router.push('/home')} />
         <NavItem icon="extension" label="Quiz"     active />
-        <NavItem icon="face"      label="Karakter" />
-        <NavItem icon="map"       label="Misi" />
-        <NavItem icon="person"    label="Profil"   onPress={() => router.push('/onboarding')} />
+        <NavItem icon="face"      label="Karakter" onPress={() => router.push('/karakter')} />
+        <NavItem icon="map"       label="Misi"     onPress={() => router.push('/misi')} />
+        <NavItem icon="person"    label="Profil"   onPress={() => router.push('/profil')} />
       </View>
 
     </View>

@@ -1,18 +1,18 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import {
+  Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle } from 'react-native-svg';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -194,6 +194,7 @@ export default function HomeScreen() {
 
           <Pressable
             style={({ pressed }) => [styles.actionBtnWrap, pressed && { opacity: 0.85 }]}
+            onPress={() => router.push('/misi')}
           >
             <View style={[styles.actionBtn, { backgroundColor: C.secondary }]}>
               <MaterialIcons name="map" size={26} color="white" />
@@ -253,9 +254,9 @@ export default function HomeScreen() {
       <View style={[styles.navbar, { paddingBottom: insets.bottom + 8 }]}>
         <NavItem icon="home" label="Home" active onPress={() => router.push('/home')} />
         <NavItem icon="extension" label="Quiz" onPress={() => router.push('/quiz')} />
-        <NavItem icon="face" label="Karakter" />
-        <NavItem icon="map" label="Misi" />
-        <NavItem icon="person" label="Profil" onPress={() => router.push('/onboarding')} />
+        <NavItem icon="face" label="Karakter" onPress={() => router.push('/karakter')} />
+        <NavItem icon="map" label="Misi" onPress={() => router.push('/misi')} />
+        <NavItem icon="person" label="Profil" onPress={() => router.push('/profil')} />
       </View>
     </View>
   );
