@@ -10,6 +10,8 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUserStore } from '../store/useUserStore';
+import { QUIZ_SETS } from '../assets/data/quizData';
 
 // ── Colour tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -93,8 +95,9 @@ function NavItem({ icon, label, active = false, onPress }) {
 export default function QuizSelectionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { points } = useUserStore();
 
-  const goToQuestion = () => router.push('/quiz/question');
+  const goToQuestion = (quizId) => router.push({ pathname: '/quiz/question', params: { quizId } });
 
   return (
     <View style={styles.container}>
@@ -107,7 +110,7 @@ export default function QuizSelectionScreen() {
         </View>
         <View style={styles.pointsBadge}>
           <MaterialIcons name="stars" size={20} color={C.primary} />
-          <Text style={styles.pointsText}>1,250 Pts</Text>
+          <Text style={styles.pointsText}>{points.toLocaleString('id-ID')} Pts</Text>
         </View>
       </View>
 
@@ -136,36 +139,19 @@ export default function QuizSelectionScreen() {
 
         {/* Quiz cards */}
         <View style={styles.cardList}>
-          <QuizCard
-            icon="extension"
-            iconBg={C.secondaryContainer}
-            iconColor={C.secondary}
-            title="Ayo Kenal Pancasila!"
-            points="+50 Pts"
-            stars={1}
-            level="Tingkat: Pemula"
-            onPress={goToQuestion}
-          />
-          <QuizCard
-            icon="favorite"
-            iconBg={C.tertiaryContainer}
-            iconColor={C.tertiary}
-            title="Pilih yang Baik Yuk!"
-            points="+100 Pts"
-            stars={2}
-            level="Tingkat: Menengah"
-            onPress={goToQuestion}
-          />
-          <QuizCard
-            icon="map"
-            iconBg={C.primaryContainer}
-            iconColor={C.primary}
-            title="Misi Kebaikan Hari Ini!"
-            points="+250 Pts"
-            stars={3}
-            level="Tingkat: Petualang"
-            onPress={goToQuestion}
-          />
+          {QUIZ_SETS.map((quiz) => (
+            <QuizCard
+              key={quiz.id}
+              icon={quiz.stars === 1 ? 'extension' : quiz.stars === 2 ? 'favorite' : 'map'}
+              iconBg={quiz.stars === 1 ? C.secondaryContainer : quiz.stars === 2 ? C.tertiaryContainer : C.primaryContainer}
+              iconColor={quiz.stars === 1 ? C.secondary : quiz.stars === 2 ? C.tertiary : C.primary}
+              title={quiz.title}
+              points={`+${quiz.points} Pts`}
+              stars={quiz.stars}
+              level={`Tingkat: ${quiz.level}`}
+              onPress={() => goToQuestion(quiz.id)}
+            />
+          ))}
         </View>
 
         {/* Weekly event banner */}
@@ -220,7 +206,7 @@ const styles = StyleSheet.create({
     zIndex: 40,
   },
   headerApp: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 2,
     color: C.onSurfaceVariant,
@@ -228,7 +214,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 27,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: -0.3,
@@ -244,7 +230,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onPrimaryContainer,
   },
 
@@ -269,13 +255,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   heroBannerTitle: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '800',
     color: C.onPrimaryContainer,
     lineHeight: 24,
   },
   heroBannerSub: {
-    fontSize: 11,
+    fontSize: 14,
     color: C.onPrimaryContainer,
     opacity: 0.75,
     marginTop: 6,
@@ -324,13 +310,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   quizCardTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: C.onSurface,
     flex: 1,
   },
   quizCardPts: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
     color: C.primary,
     marginLeft: 8,
@@ -342,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   quizCardLevel: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: '800',
     color: C.onSurfaceVariant,
     textTransform: 'uppercase',
@@ -371,12 +357,12 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   eventTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '800',
     color: '#FFFFFF',
   },
   eventSub: {
-    fontSize: 11,
+    fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 4,
     lineHeight: 16,
@@ -389,7 +375,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   eventBtnText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '800',
     color: C.secondary,
   },
@@ -429,7 +415,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ABC27040',
   },
   navLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
     color: C.primary + '99',
     textTransform: 'uppercase',

@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   xpText: {
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: 16,
     color: C.primary,
   },
 
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   questActiveLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1.8,
     color: C.secondary,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   questTitle: {
-    fontSize: 24,
+    fontSize: 27,
     fontWeight: '900',
     color: C.onSurface,
     letterSpacing: -0.4,
@@ -369,13 +369,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   questSilaLabel: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: '700',
     color: C.secondary,
     marginBottom: 14,
   },
   questDesc: {
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurfaceVariant,
     lineHeight: 21,
     fontWeight: '500',
@@ -411,12 +411,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   taskLabel: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '800',
     color: C.onSurface,
   },
   taskSubLabel: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '600',
     color: C.onSurfaceVariant,
     marginTop: 2,
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.primaryContainer,
   },
   tabLabel: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: '700',
     color: C.onSurfaceVariant + '80',
     letterSpacing: 0.6,
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
   ctaText: {
     color: '#fff',
     fontWeight: '900',
-    fontSize: 15,
+    fontSize: 18,
     letterSpacing: 1,
   },
 });

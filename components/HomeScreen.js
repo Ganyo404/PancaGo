@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
+import { useUserStore } from '../store/useUserStore';
+import { useProgressStore } from '../store/useProgressStore';
+import { getCharacter } from '../constants/characters';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -110,6 +113,12 @@ function NavItem({ icon, label, active = false, onPress }) {
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { points, level, name, equippedCharId } = useUserStore();
+  const { getSilaPct, getTotalProgress } = useProgressStore();
+
+  const totalProgress = getTotalProgress();
+  const silaPcts = [1, 2, 3, 4, 5].map((n) => getSilaPct(n));
+  const avatarUri = getCharacter(equippedCharId)?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
 
   return (
     <View style={styles.container}>
@@ -118,18 +127,16 @@ export default function HomeScreen() {
         <View style={styles.headerLeft}>
           <Pressable onPress={() => router.push('/onboarding')}>
             <Image
-              source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM',
-              }}
+              source={avatarUri}
               style={styles.avatar}
             />
           </Pressable>
-          <Text style={styles.greeting}>Pagi Petualang!</Text>
+          <Text style={styles.greeting}>Halo, {name}!</Text>
         </View>
 
         <View style={styles.pointsBadge}>
           <MaterialIcons name="stars" size={16} color={C.secondary} />
-          <Text style={styles.pointsText}>1,250 Pts</Text>
+          <Text style={styles.pointsText}>{points.toLocaleString('id-ID')} Pts</Text>
         </View>
       </View>
 
@@ -144,33 +151,31 @@ export default function HomeScreen() {
         {/* ── Quiz Card ─────────────────────────────────────────────────── */}
         <View style={styles.quizCard}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.quizCardLabel}>QUIZ TERBARU KAMU</Text>
-            <Text style={styles.quizCardTitle}>{'Ayo Kenal\nPancasila!'}</Text>
+            <Text style={styles.quizCardLabel}>PROGRES BELAJARMU</Text>
+            <Text style={styles.quizCardTitle}>{'Level ' + level + '\nPetualang!'}</Text>
           </View>
-          <CircularProgress size={80} strokeWidth={8} fill={65} />
+          <CircularProgress size={80} strokeWidth={8} fill={totalProgress} />
         </View>
 
-        {/* ── Bot Card ──────────────────────────────────────────────────── */}
+        {/* ── Character Card ──────────────────────────────────────────────────── */}
         <View style={styles.botCard}>
           {/* decorative blobs */}
           <View style={styles.blobTL} />
           <View style={styles.blobBR} />
 
           <Image
-            source={{
-              uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDbo7LcxIWuFnw-gNiTYSezp2-SOPrwlXCwWklGnRz1ySMrP8EsXU8MKVTcJgCOTkSJnlluDG2OrLc7VkwdimHtf5HlQh-9RWSET6Zgr95c0eKEhdLZnPMoOTbJpke-dgvFEWkoJJWbe67Izf22sa5t5MgVjCF07hZv_Dj0LXHLAUR6FbdIa7XcqV9FWK5ku0mxBGD6EGCehLyxfiChO21Bq2Mdgz3zx7zapWWiXbYevSIcYR6p9pSMtnnqiruc-5CFWFbBFfHwsGs',
-            }}
+            source={avatarUri}
             style={styles.botImage}
             resizeMode="contain"
           />
 
           <View style={styles.botInfoBar}>
             <View>
-              <Text style={styles.botName}>Panca-Bot</Text>
-              <Text style={styles.botLevel}>Level 12 Explorer</Text>
+              <Text style={styles.botName}>{getCharacter(equippedCharId)?.name || 'Karakter'}</Text>
+              <Text style={styles.botLevel}>Level {level} {getCharacter(equippedCharId)?.category || 'Explorer'}</Text>
             </View>
-            <Pressable style={styles.refreshBtn}>
-              <MaterialIcons name="refresh" size={22} color="white" />
+            <Pressable style={styles.refreshBtn} onPress={() => router.push('/karakter')}>
+              <MaterialIcons name="edit" size={22} color="white" />
             </Pressable>
           </View>
         </View>
@@ -209,11 +214,11 @@ export default function HomeScreen() {
             <MaterialIcons name="shield" size={18} color={C.primary} />
             <Text style={styles.progressTitle}>Pemahaman Sila</Text>
           </View>
-          <SilaBar label="Sila 1: Ketuhanan" pct={80} />
-          <SilaBar label="Sila 2: Kemanusiaan" pct={45} />
-          <SilaBar label="Sila 3: Persatuan" pct={90} />
-          <SilaBar label="Sila 4: Kerakyatan" pct={30} />
-          <SilaBar label="Sila 5: Keadilan" pct={60} />
+          <SilaBar label="Sila 1: Ketuhanan" pct={silaPcts[0]} />
+          <SilaBar label="Sila 2: Kemanusiaan" pct={silaPcts[1]} />
+          <SilaBar label="Sila 3: Persatuan" pct={silaPcts[2]} />
+          <SilaBar label="Sila 4: Kerakyatan" pct={silaPcts[3]} />
+          <SilaBar label="Sila 5: Keadilan" pct={silaPcts[4]} />
         </View>
 
         {/* ── Petualanganmu ─────────────────────────────────────────────── */}
@@ -291,7 +296,7 @@ const styles = StyleSheet.create({
     borderColor: C.primary,
   },
   greeting: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: -0.3,
@@ -311,7 +316,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurface,
   },
 
@@ -338,14 +343,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.4)',
   },
   quizCardLabel: {
-    fontSize: 10,
+    fontSize: 13,
     letterSpacing: 1.5,
     color: C.onSurfaceVariant,
     fontWeight: '800',
     textTransform: 'uppercase',
   },
   quizCardTitle: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: '900',
     color: C.onSurface,
     marginTop: 6,
@@ -354,7 +359,7 @@ const styles = StyleSheet.create({
   circleLabel: {
     position: 'absolute',
     fontWeight: '900',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurface,
   },
 
@@ -408,11 +413,11 @@ const styles = StyleSheet.create({
   },
   botName: {
     fontWeight: '900',
-    fontSize: 17,
+    fontSize: 20,
     color: C.onSurface,
   },
   botLevel: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '700',
     color: C.primary,
     textTransform: 'uppercase',
@@ -456,7 +461,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: 'white',
     fontWeight: '900',
-    fontSize: 13,
+    fontSize: 16,
   },
 
   // PROGRESS
@@ -474,7 +479,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: {
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurfaceVariant,
   },
   silaRow: {
@@ -486,14 +491,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   silaLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   silaPct: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.primary,
   },
@@ -519,12 +524,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   adventureTitle: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '900',
     color: C.onSurface,
   },
   lihatSemua: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '700',
     color: C.primary,
   },
@@ -554,12 +559,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   adventureItemTitle: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '800',
     color: C.onSurface,
   },
   adventureItemSub: {
-    fontSize: 11,
+    fontSize: 14,
     color: C.onSurfaceVariant,
     marginTop: 2,
   },
@@ -599,7 +604,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.bg + '40',
   },
   navLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
     color: C.secondary + '99',
     textTransform: 'uppercase',

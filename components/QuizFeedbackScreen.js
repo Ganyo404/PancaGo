@@ -8,7 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const C = {
@@ -46,9 +46,29 @@ function PaginationDots() {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function QuizFeedbackScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
 
   const [btnPressed, setBtnPressed] = React.useState(false);
+
+  const isCorrect = params.isCorrect === 'true';
+  const earnedPoints = params.earnedPoints || '0';
+  const nextQuestion = params.nextQuestion !== undefined ? parseInt(params.nextQuestion, 10) : null;
+  const quizId = params.quizId || null;
+  const totalScore = params.totalScore || earnedPoints;
+
+  const titleText = isCorrect ? 'Benar! Kamu Hebat!' : 'Sayang Sekali!';
+  const subtitleText = isCorrect 
+    ? 'Kamu berhasil menjawab tantangan ini.\nAyo kumpulkan lebih banyak koin!'
+    : 'Jawabanmu kurang tepat.\nJangan menyerah, coba pelajari lagi!';
+  const pointsColor = isCorrect ? C.primary : '#E53E3E';
+
+  const handleLanjut = () => {
+    router.push({
+      pathname: '/quiz/result',
+      params: { finalScore: totalScore, quizId },
+    });
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 16 }]}>
@@ -80,19 +100,18 @@ export default function QuizFeedbackScreen() {
 
         {/* Heading */}
         <View style={styles.headingArea}>
-          <Text style={styles.title}>Benar! Kamu Hebat!</Text>
+          <Text style={[styles.title, !isCorrect && { color: pointsColor }]}>{titleText}</Text>
           <Text style={styles.subtitle}>
-            {'Kamu berhasil menjawab tantangan ini.\nAyo kumpulkan lebih banyak koin!'}
+            {subtitleText}
           </Text>
         </View>
 
-        {/* Stats row */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Poin Didapat</Text>
             <View style={styles.statValue}>
-              <MaterialIcons name="monetization-on" size={26} color={C.primary} />
-              <Text style={[styles.statNum, { color: C.primary }]}>+50</Text>
+              <MaterialIcons name="monetization-on" size={26} color={pointsColor} />
+              <Text style={[styles.statNum, { color: pointsColor }]}>+{earnedPoints}</Text>
             </View>
           </View>
 
@@ -109,7 +128,7 @@ export default function QuizFeedbackScreen() {
         <Pressable
           onPressIn={() => setBtnPressed(true)}
           onPressOut={() => setBtnPressed(false)}
-          onPress={() => router.push('/quiz/result')}
+          onPress={handleLanjut}
           style={[
             styles.ctaBtn,
             btnPressed && styles.ctaBtnPressed,
@@ -227,14 +246,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 35,
     fontWeight: '900',
     color: C.primary,
     letterSpacing: -0.5,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '500',
     color: C.secondary,
     textAlign: 'center',
@@ -259,7 +278,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.secondary,
     textTransform: 'uppercase',
@@ -272,7 +291,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   statNum: {
-    fontSize: 30,
+    fontSize: 33,
     fontWeight: '900',
   },
 
@@ -299,7 +318,7 @@ const styles = StyleSheet.create({
   },
   ctaBtnText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: '800',
   },
 
@@ -308,7 +327,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   detailLinkText: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: '800',
     color: C.secondary,
     letterSpacing: 1,

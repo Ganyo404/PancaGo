@@ -5,6 +5,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUserStore } from '../store/useUserStore';
+import { useProgressStore } from '../store/useProgressStore';
+import { MISI_NODES } from '../assets/data/misiData';
+import { getCharacter } from '../constants/characters';
 
 const { width: SW } = Dimensions.get('window');
 const MAP_H = 960;
@@ -23,20 +27,12 @@ const C = {
   lockedCircle: '#D0D4C8',
 };
 
-const MASCOT_URI =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
+// MASCOT dihapus karena avatar sudah dinamis
 
-// Node definitions — positions are center coordinates within the MAP container
-const NODES = [
-  { id: 1, silaLabel: 'SILA 1', name: 'Puncak Religi',         done: true,  active: false, locked: false, xR: 0.54, y: 870, label: 'left'  },
-  { id: 2, silaLabel: 'SILA 2', name: 'Desa Beradab',          done: true,  active: false, locked: false, xR: 0.20, y: 680, label: 'right' },
-  { id: 3, silaLabel: 'SILA 3', name: 'Persatuan Rimba',       done: false, active: true,  locked: false, xR: 0.50, y: 480, label: 'below' },
-  { id: 4, silaLabel: 'SILA 4', name: 'Lembah Gotong Royong',  done: false, active: false, locked: true,  xR: 0.14, y: 280, label: 'right' },
-  { id: 5, silaLabel: 'SILA 5', name: 'Keadilan Sosial',       done: false, active: false, locked: true,  xR: 0.65, y: 100, label: 'below' },
-];
+// NODES sekarang dari misiData.js via useProgressStore
 
-function buildPath() {
-  const pts = NODES.map((n) => ({ x: n.xR * SW, y: n.y }));
+function buildPath(nodes) {
+  const pts = nodes.map((n) => ({ x: n.xR * SW, y: n.y }));
   const segs = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
@@ -49,7 +45,7 @@ function buildPath() {
 }
 
 // ── Single map node ──────────────────────────────────────────────────────────
-function MapNode({ node, onPress }) {
+function MapNode({ node, onPress, avatarUri }) {
   const CIRCLE = node.active ? 80 : 60;
   const cx = node.xR * SW;
   const LABEL_W = 148;
@@ -91,7 +87,7 @@ function MapNode({ node, onPress }) {
         ]}
       >
         {node.active ? (
-          <Image source={{ uri: MASCOT_URI }} style={styles.mascotThumb} resizeMode="cover" />
+          <Image source={avatarUri} style={styles.mascotThumb} resizeMode="cover" />
         ) : node.done ? (
           <MaterialIcons name="check" size={22} color="#fff" />
         ) : (
@@ -140,7 +136,20 @@ function NavItem({ icon, label, active = false, onPress }) {
 export default function MisiScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const pathD = buildPath();
+  const { points, equippedCharId, name } = useUserStore();
+  const { isSilaDone, isSilaUnlocked } = useProgressStore();
+
+  const avatarUri = getCharacter(equippedCharId)?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
+
+  // Bangun NODES dari data misiData + status dari store
+  const NODES = MISI_NODES.map((node) => ({
+    ...node,
+    done: isSilaDone(node.silaNum),
+    locked: !isSilaUnlocked(node.silaNum),
+    active: isSilaUnlocked(node.silaNum) && !isSilaDone(node.silaNum),
+  }));
+
+  const pathD = buildPath(NODES);
 
   return (
     <View style={styles.container}>
@@ -148,12 +157,12 @@ export default function MisiScreen() {
       {/* ── HEADER ──────────────────────────────────────────────────────── */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable onPress={() => router.push('/profil')} style={styles.headerLeft}>
-          <Image source={{ uri: MASCOT_URI }} style={styles.headerAvatar} />
-          <Text style={styles.headerTitle}>Pagi Petualang!</Text>
+          <Image source={avatarUri} style={styles.headerAvatar} />
+          <Text style={styles.headerTitle}>Pagi {name}!</Text>
         </Pressable>
         <View style={styles.pointsBadge}>
           <MaterialIcons name="stars" size={16} color={C.secondary} />
-          <Text style={styles.pointsText}>1,250 Pts</Text>
+          <Text style={styles.pointsText}>{points.toLocaleString('id-ID')} Pts</Text>
         </View>
       </View>
 
@@ -226,6 +235,7 @@ export default function MisiScreen() {
               key={n.id}
               node={n}
               onPress={(id) => router.push(`/isi-misi?id=${id}`)}
+              avatarUri={avatarUri}
             />
           ))}
         </LinearGradient>
@@ -269,19 +279,19 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18,
     borderWidth: 2, borderColor: C.primary,
   },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: C.primary, letterSpacing: -0.3 },
+  headerTitle: { fontSize: 21, fontWeight: '800', color: C.primary, letterSpacing: -0.3 },
   pointsBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: C.secondaryContainer,
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999,
     shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
   },
-  pointsText: { fontWeight: '800', fontSize: 13, color: C.onSurface },
+  pointsText: { fontWeight: '800', fontSize: 16, color: C.onSurface },
 
   // SECTION HEAD
   sectionHead: { paddingHorizontal: 24, paddingVertical: 20, gap: 4 },
-  sectionTitle: { fontSize: 28, fontWeight: '900', color: C.onSurface, letterSpacing: -0.5 },
-  sectionSub: { fontSize: 13, color: C.onSurfaceVariant, fontWeight: '500', lineHeight: 19 },
+  sectionTitle: { fontSize: 31, fontWeight: '900', color: C.onSurface, letterSpacing: -0.5 },
+  sectionSub: { fontSize: 16, color: C.onSurfaceVariant, fontWeight: '500', lineHeight: 19 },
 
   // MAP
   mapArea: { width: SW, overflow: 'hidden' },
@@ -302,10 +312,10 @@ const styles = StyleSheet.create({
   },
   labelCardActive: { backgroundColor: C.primary },
   silaTag: {
-    fontSize: 9, fontWeight: '800', color: C.onSurfaceVariant,
+    fontSize: 12, fontWeight: '800', color: C.onSurfaceVariant,
     textTransform: 'uppercase', letterSpacing: 1.2,
   },
-  nodeName: { fontSize: 13, fontWeight: '800', color: C.onSurface, marginTop: 2 },
+  nodeName: { fontSize: 16, fontWeight: '800', color: C.onSurface, marginTop: 2 },
 
   // FAB
   fab: {
@@ -332,7 +342,7 @@ const styles = StyleSheet.create({
   navItemActive: { backgroundColor: C.bg },
   navItemPressed: { backgroundColor: C.bg + '40' },
   navLabel: {
-    fontSize: 10, fontWeight: '700', color: C.secondary + '99',
+    fontSize: 13, fontWeight: '700', color: C.secondary + '99',
     textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 2,
   },
   navLabelActive: { color: C.onSurface },

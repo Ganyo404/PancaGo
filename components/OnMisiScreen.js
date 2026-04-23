@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   headerTitleText: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '800',
     color: C.onSurface,
     letterSpacing: 0.2,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   misiBadgeText: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: '900',
     color: C.primary,
     letterSpacing: 0.5,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   scenarioLabelText: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.secondary,
     letterSpacing: 1.6,
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
 
   // QUESTION
   question: {
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: '900',
     color: C.onSurface,
     textAlign: 'center',
@@ -439,12 +439,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   choiceLabel: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: C.onSurface,
   },
   choiceSub: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '600',
     color: C.onSurfaceVariant,
     marginTop: 2,
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   // HINT + DOTS
   hintText: {
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.secondary + 'BB',
     letterSpacing: 1.6,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     color: '#fff',
     fontWeight: '900',
-    fontSize: 15,
+    fontSize: 18,
     letterSpacing: 0.5,
   },
 });

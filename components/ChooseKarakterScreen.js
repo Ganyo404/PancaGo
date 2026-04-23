@@ -27,7 +27,7 @@ export default function ChooseKarakterScreen() {
   if (!char) {
     return (
       <View style={{ flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: '#fff', fontSize: 16 }}>Karakter tidak ditemukan.</Text>
+        <Text style={{ color: '#fff', fontSize: 19 }}>Karakter tidak ditemukan.</Text>
         <Pressable onPress={() => router.back()} style={{ marginTop: 16 }}>
           <Text style={{ color: '#fff', textDecorationLine: 'underline' }}>Kembali</Text>
         </Pressable>
@@ -63,7 +63,7 @@ export default function ChooseKarakterScreen() {
       {/* ── Character image ────────────────────────────────────────────────── */}
       <View style={styles.imageCard}>
         <Image
-          source={{ uri: char.image }}
+          source={char.image}
           style={[styles.charImage, char.locked && { opacity: 0.5 }]}
           resizeMode="contain"
         />
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999,
     shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, elevation: 2,
   },
-  pointsText: { fontWeight: '800', fontSize: 13, color: C.onSurface },
+  pointsText: { fontWeight: '800', fontSize: 16, color: C.onSurface },
 
   // EDITION BADGE
   editionBadge: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18, paddingVertical: 6, borderRadius: 999, marginBottom: 10,
   },
   editionText: {
-    fontSize: 11, fontWeight: '900', color: '#fff', letterSpacing: 1.5,
+    fontSize: 14, fontWeight: '900', color: '#fff', letterSpacing: 1.5,
   },
 
   // IMAGE CARD
@@ -178,11 +178,11 @@ const styles = StyleSheet.create({
 
   // NAME & RARITY
   charName: {
-    fontSize: 34, fontWeight: '900', color: '#fff',
+    fontSize: 37, fontWeight: '900', color: '#fff',
     letterSpacing: -0.5, textAlign: 'center',
   },
   charRarity: {
-    fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.85)',
+    fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.85)',
     marginTop: 4, marginBottom: 16, textAlign: 'center',
   },
 
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.7)',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  bonusTitle: { fontSize: 15, fontWeight: '900', color: C.onSurface },
-  bonusDesc: { fontSize: 12, color: C.onSurfaceVariant, marginTop: 3, lineHeight: 17 },
+  bonusTitle: { fontSize: 18, fontWeight: '900', color: C.onSurface },
+  bonusDesc: { fontSize: 15, color: C.onSurfaceVariant, marginTop: 3, lineHeight: 17 },
 
   // CTA BUTTONS
   ctaUnlocked: {
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', gap: 10,
     shadowColor: C.brown, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
   },
-  ctaUnlockedText: { fontSize: 18, fontWeight: '900', color: '#fff', letterSpacing: 1 },
+  ctaUnlockedText: { fontSize: 21, fontWeight: '900', color: '#fff', letterSpacing: 1 },
 
   ctaLocked: {
     backgroundColor: C.secondary, borderRadius: 999,
@@ -224,16 +224,16 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', gap: 10,
     shadowColor: C.secondary, shadowOpacity: 0.3, shadowRadius: 10, elevation: 4,
   },
-  ctaLockedText: { fontSize: 16, fontWeight: '800', color: '#fff' },
+  ctaLockedText: { fontSize: 19, fontWeight: '800', color: '#fff' },
 
   secondaryBtn: {
     backgroundColor: '#F2F3ED', borderRadius: 999,
     paddingVertical: 16, alignItems: 'center', justifyContent: 'center',
   },
-  secondaryBtnText: { fontSize: 15, fontWeight: '700', color: C.onSurface },
+  secondaryBtnText: { fontSize: 18, fontWeight: '700', color: C.onSurface },
 
   footer: {
-    fontSize: 11, color: C.onSurfaceVariant, textAlign: 'center',
+    fontSize: 14, color: C.onSurfaceVariant, textAlign: 'center',
     paddingHorizontal: 8,
   },
 });

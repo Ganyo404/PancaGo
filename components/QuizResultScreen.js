@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUserStore } from '../store/useUserStore';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -48,7 +49,21 @@ function NavItem({ icon, label, active = false, onPress }) {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function QuizResultScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+
+  const { points, addPoints } = useUserStore();
+
+  const finalScore = parseInt(params.finalScore || '0', 10);
+
+  // Simpan poin ke store (hanya sekali saat layar ini pertama muncul)
+  React.useEffect(() => {
+    if (finalScore > 0) {
+      addPoints(finalScore);
+    }
+  }, []);
+
+  const totalScore = points + finalScore; // tampilkan total termasuk yg baru didapat
 
   return (
     <View style={styles.container}>
@@ -68,7 +83,7 @@ export default function QuizResultScreen() {
         </View>
         <View style={styles.pointsBadge}>
           <MaterialIcons name="stars" size={18} color={C.primary} />
-          <Text style={styles.pointsText}>1,250 Pts</Text>
+          <Text style={styles.pointsText}>{totalScore} Pts</Text>
         </View>
       </View>
 
@@ -93,7 +108,7 @@ export default function QuizResultScreen() {
 
           {/* Floating pts badge */}
           <View style={styles.ptsBadge}>
-            <Text style={styles.ptsBadgeText}>+50 Pts</Text>
+            <Text style={styles.ptsBadgeText}>+{finalScore} Pts</Text>
           </View>
         </View>
 
@@ -107,7 +122,7 @@ export default function QuizResultScreen() {
 
           <View style={styles.scoreRow}>
             <MaterialIcons name="emoji-events" size={32} color="#ebc23e" />
-            <Text style={styles.scoreText}>Skor Kamu: 850</Text>
+            <Text style={styles.scoreText}>Skor Kamu: {totalScore}</Text>
           </View>
 
           {/* Progress bar */}
@@ -207,7 +222,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   greeting: {
-    fontSize: 19,
+    fontSize: 22,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: -0.2,
@@ -224,7 +239,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(82,101,30,0.2)',
   },
   pointsText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: 0.3,
@@ -281,7 +296,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   ptsBadgeText: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: '900',
     color: C.darkGreen,
   },
@@ -314,14 +329,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(212,232,160,0.3)',
   },
   cardSub: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
     color: C.brown,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   cardTitle: {
-    fontSize: 38,
+    fontSize: 41,
     fontWeight: '900',
     color: C.primary,
     letterSpacing: -0.5,
@@ -333,7 +348,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   scoreText: {
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: '800',
     color: '#574500',
   },
@@ -351,7 +366,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   rankText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '700',
     color: C.brown,
     textAlign: 'center',
@@ -380,7 +395,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     color: '#fff',
-    fontSize: 19,
+    fontSize: 22,
     fontWeight: '800',
   },
   secondaryBtn: {
@@ -395,7 +410,7 @@ const styles = StyleSheet.create({
     borderColor: '#e8dcc4',
   },
   secondaryBtnText: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '800',
     color: C.brown,
   },
@@ -430,12 +445,12 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   tipTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: C.darkGreen,
   },
   tipText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '500',
     color: C.darkGreen,
     lineHeight: 20,
@@ -474,7 +489,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ABC270',
   },
   navLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
     color: C.primary + '99',
     textTransform: 'uppercase',

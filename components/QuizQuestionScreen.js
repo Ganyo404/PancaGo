@@ -9,8 +9,9 @@ import {
   Animated,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { QUIZ_SETS } from '../assets/data/quizData';
 
 // ── Colour tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -25,12 +26,7 @@ const C = {
   white: '#FFFFFF',
 };
 
-const CHOICES = [
-  { id: 'A', text: 'Bermain bersama semua teman' },
-  { id: 'B', text: 'Hanya bermain dengan satu orang' },
-  { id: 'C', text: 'Bertengkar saat bermain' },
-  { id: 'D', text: 'Sembunyi sendirian' },
-];
+// Data soal sekarang dari quizData.js
 
 // ── Answer button ─────────────────────────────────────────────────────────────
 function ChoiceButton({ choice, onPress }) {
@@ -71,12 +67,54 @@ function ChoiceButton({ choice, onPress }) {
 export default function QuizQuestionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams();
 
-  const handleAnswer = () => {
-    router.push('/quiz/feedback');
+  // Ambil set kuis dari quizData berdasarkan quizId param (default ke set pertama)
+  const quizId = params.quizId || QUIZ_SETS[0].id;
+  const quizSet = QUIZ_SETS.find((q) => q.id === quizId) || QUIZ_SETS[0];
+  const questions = quizSet.questions;
+
+  // Baca startIndex dari params (saat kembali dari FeedbackScreen)
+  const startIndex = parseInt(params.startIndex || '0', 10);
+  const prevScore = parseInt(params.prevScore || '0', 10);
+
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [score, setScore] = useState(prevScore);
+  const [answered, setAnswered] = useState(false);
+  const [lastCorrect, setLastCorrect] = useState(null); // null | true | false
+
+  const currentQ = questions[currentIndex];
+  const totalQ = questions.length;
+  const PROGRESS = (currentIndex + 1) / totalQ;
+
+  const handleAnswer = (choice) => {
+    if (answered) return; // jangan jawab ulang
+    setAnswered(true);
+    setLastCorrect(choice.isCorrect);
+    const newScore = choice.isCorrect ? score + quizSet.points : score;
+    setScore(newScore);
+
+    setTimeout(() => {
+      if (currentIndex + 1 < totalQ) {
+        // Ada soal berikutnya — pindah langsung di screen ini
+        setCurrentIndex((prev) => prev + 1);
+        setAnswered(false);
+        setLastCorrect(null);
+      } else {
+        // Semua soal selesai — ke FeedbackScreen (sebagai summary akhir)
+        router.push({
+          pathname: '/quiz/feedback',
+          params: {
+            isCorrect: newScore > 0 ? 'true' : 'false',
+            earnedPoints: String(newScore),
+            nextQuestion: undefined, // tidak ada soal lagi
+            quizId,
+            totalScore: String(newScore),
+          },
+        });
+      }
+    }, 600);
   };
-
-  const PROGRESS = 2 / 5; // 2 out of 5 questions
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -106,8 +144,8 @@ export default function QuizQuestionScreen() {
         {/* Progress bar */}
         <View style={styles.progressSection}>
           <View style={styles.progressLabelRow}>
-            <Text style={styles.progressLabel}>Quest Progress</Text>
-            <Text style={styles.progressCount}>2 / 5 Questions</Text>
+            <Text style={styles.progressLabel}>{quizSet.title}</Text>
+            <Text style={styles.progressCount}>{currentIndex + 1} / {totalQ} Soal</Text>
           </View>
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${PROGRESS * 100}%` }]} />
@@ -132,14 +170,19 @@ export default function QuizQuestionScreen() {
 
           {/* Question text */}
           <Text style={styles.questionText}>
-            Bagaimana cara kita menjaga persatuan di sekolah?
+            {currentQ.text}
           </Text>
         </View>
 
         {/* Answer choices */}
         <View style={styles.choiceList}>
-          {CHOICES.map((choice) => (
-            <ChoiceButton key={choice.id} choice={choice} onPress={handleAnswer} />
+          {currentQ.choices.map((choice) => (
+            <ChoiceButton
+              key={choice.id}
+              choice={choice}
+              onPress={() => handleAnswer(choice)}
+              disabled={answered}
+            />
           ))}
         </View>
 
@@ -182,7 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '800',
     color: '#365314',
     letterSpacing: 0.2,
@@ -212,12 +255,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   progressLabel: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: C.secondary,
   },
   progressCount: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '600',
     color: C.onSurfaceVariant,
   },
@@ -279,7 +322,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   questionText: {
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: '900',
     color: C.onPrimaryContainer,
     textAlign: 'center',
@@ -313,12 +356,12 @@ const styles = StyleSheet.create({
   choiceBadgeText: {
     color: C.white,
     fontWeight: '800',
-    fontSize: 18,
+    fontSize: 21,
   },
   choiceText: {
     flex: 1,
     color: C.white,
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '700',
     lineHeight: 22,
   },
@@ -326,7 +369,7 @@ const styles = StyleSheet.create({
   // FOOTER HINT
   footerHint: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: '700',
     color: C.onSurfaceVariant,
     opacity: 0.7,

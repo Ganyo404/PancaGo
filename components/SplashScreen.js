@@ -33,37 +33,13 @@ export default function SplashScreen() {
         <View style={styles.blobRight} />
       </View>
 
-      {/* ── Top: Logo area ──────────────────────────────────────────────── */}
-      <View style={styles.topSection}>
-        <View style={styles.iconBadge}>
-          <MaterialIcons name="explore" size={32} color="#3b4d06" />
-        </View>
-        <Text style={styles.title}>PancaGo!</Text>
-        <Text style={styles.subtitle}>PETUALANGAN LITERASI SERU</Text>
-      </View>
-
-      {/* ── Center: Mascot + Floating badges ───────────────────────────── */}
+      {/* ── Center: Logo ───────────────────────────── */}
       <View style={styles.centerSection}>
-        {/* Mascot image */}
-        <View style={styles.mascotWrapper}>
-          <Image
-            source={{
-              uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpzR0eWeAINaz3RmohS4EcGDWLzujY8sYkftqqpctKfY3vEGKc4P0J8ZDo3TYjhiwc8z4NT1I8WXpktscqVeTJJg34WvnAk0Bup9myu46mob4Nbak-JXOOiyZhGRq3lvQAvr7XGxYQlQo4M5XRK1dHGjSAIYoP-OtkRJUpen6GnCPcXVk0ko59y900TSfeB1dd7kLdUbLqBrLP85TkQEOoTx9RRu7yjcaMasyB-37P5tJ1PWdyfdb-ftZfjP8Kr97Dsva0xiP-UZk',
-            }}
-            style={styles.mascotImage}
-            resizeMode="cover"
-          />
-        </View>
-
-        {/* Floating badge — top right */}
-        <View style={styles.floatRight}>
-          <MaterialIcons name="extension" size={28} color="#574500" />
-        </View>
-
-        {/* Floating badge — bottom left */}
-        <View style={styles.floatLeft}>
-          <MaterialIcons name="map" size={28} color="#564334" />
-        </View>
+        <Image
+          source={require('../assets/images/materials/Logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
 
       {/* ── Bottom: Actions ─────────────────────────────────────────────── */}
@@ -143,95 +119,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#52651E',
   },
 
-  // ── Top section ────────────────────────────────────────────────────────
-  topSection: {
-    alignItems: 'center',
-    marginTop: 80,
-    zIndex: 10,
-  },
-  iconBadge: {
-    backgroundColor: '#9eb461',
-    padding: 14,
-    borderRadius: 999,
-    marginBottom: 12,
-    shadowColor: '#3b4d06',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  title: {
-    fontSize: 52,
-    fontWeight: '900',
-    color: '#3b4d06',
-    letterSpacing: -1,
-  },
-  subtitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#3b4d06',
-    letterSpacing: 2,
-    opacity: 0.75,
-    marginTop: 4,
-  },
-
   // ── Center section ─────────────────────────────────────────────────────
   centerSection: {
-    width: 260,
-    height: 260,
-    position: 'relative',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
-  },
-  mascotWrapper: {
-    width: 260,
-    height: 260,
-    borderRadius: 0,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
-    backgroundColor: '#4b89c8', // blue fallback while image loads
-  },
-  mascotImage: {
     width: '100%',
-    height: '100%',
+    paddingHorizontal: 40,
   },
-  floatRight: {
-    position: 'absolute',
-    top: -20,
-    right: -28,
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#FFE087',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-    zIndex: 20,
+  logoImage: {
+    width: '100%',
+    height: 300,
   },
-  floatLeft: {
-    position: 'absolute',
-    bottom: -18,
-    left: -28,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#F9DDC8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-    zIndex: 20,
-  },
+
 
   // ── Bottom section ─────────────────────────────────────────────────────
   bottomSection: {
@@ -260,7 +161,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '800',
   },
   loginRow: {
@@ -269,12 +170,12 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   loginHint: {
-    fontSize: 13,
+    fontSize: 16,
     color: 'rgba(59,77,6,0.7)',
     fontWeight: '500',
   },
   loginLink: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '800',
     color: '#3b4d06',
     textDecorationLine: 'underline',

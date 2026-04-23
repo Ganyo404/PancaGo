@@ -12,9 +12,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
+import { useUserStore } from '../store/useUserStore';
+import { useProgressStore } from '../store/useProgressStore';
+import { getCharacter } from '../constants/characters';
 
-const MASCOT_URI =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
+// MASCOT dihapus karena avatar sudah dinamis
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -114,20 +116,26 @@ function NavItem({ icon, label, active = false, onPress }) {
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { points, level, name, streak, equippedCharId } = useUserStore();
+  const { isSilaDone, getCompletedSilaCount, getSilaPct } = useProgressStore();
 
-  const silaCompleted = [true, true, true, false, false]; // 3 out of 5
+  const silaCompleted = [1, 2, 3, 4, 5].map((n) => isSilaDone(n));
+  const completedCount = getCompletedSilaCount();
+  const overallPct = Math.round([1,2,3,4,5].reduce((a,n) => a + getSilaPct(n), 0) / 5);
+
+  const avatarUri = getCharacter(equippedCharId)?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
 
   return (
     <View style={styles.container}>
       {/* ── HEADER ──────────────────────────────────────────────────────── */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
-          <Image source={{ uri: MASCOT_URI }} style={styles.headerMascot} />
+          <Image source={avatarUri} style={styles.headerMascot} />
           <Text style={styles.headerTitle}>Profil Petualang</Text>
         </View>
         <View style={styles.pointsBadge}>
           <MaterialIcons name="stars" size={16} color={C.secondary} />
-          <Text style={styles.pointsText}>1,250 Pts</Text>
+          <Text style={styles.pointsText}>{points.toLocaleString('id-ID')} Pts</Text>
         </View>
       </View>
 
@@ -140,27 +148,25 @@ export default function ProfileScreen() {
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrapper}>
             <Image
-              source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM',
-              }}
+              source={avatarUri}
               style={styles.avatar}
             />
             <Pressable style={styles.editBadge}>
               <MaterialIcons name="edit" size={12} color="#fff" />
             </Pressable>
           </View>
-          <Text style={styles.userName}>Ovelia</Text>
-          <Text style={styles.userLevel}>Petualang Tingkat 4</Text>
+          <Text style={styles.userName}>{name}</Text>
+          <Text style={styles.userLevel}>Petualang Tingkat {level}</Text>
         </View>
 
         {/* ── Sila Progress Card ─────────────────────────────────────────── */}
         <View style={styles.card}>
           <View style={styles.silaHeaderRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>Sila Selesai: 3/5</Text>
+              <Text style={styles.cardTitle}>Sila Selesai: {completedCount}/5</Text>
               <Text style={styles.cardSub}>Hampir jadi Penjaga Pancasila!</Text>
             </View>
-            <CircularProgress size={72} strokeWidth={7} fill={60} />
+            <CircularProgress size={72} strokeWidth={7} fill={overallPct} />
           </View>
           {/* Sila step indicators */}
           <View style={styles.silaSteps}>
@@ -214,12 +220,12 @@ export default function ProfileScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>RANK GLOBAL</Text>
-            <Text style={styles.statValue}>#42</Text>
+            <Text style={styles.statValue}>#{Math.max(1, 100 - level * 3)}</Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: C.secondary }]}>
             <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.75)' }]}>BERUNTUN</Text>
             <View style={styles.streakRow}>
-              <Text style={[styles.statValue, { color: '#fff' }]}>12</Text>
+              <Text style={[styles.statValue, { color: '#fff' }]}>{streak}</Text>
               <MaterialIcons name="local-fire-department" size={20} color="#FFA040" />
             </View>
           </View>
@@ -283,7 +289,7 @@ const styles = StyleSheet.create({
     borderColor: C.primary,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: -0.3,
@@ -303,7 +309,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurface,
   },
 
@@ -346,13 +352,13 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   userName: {
-    fontSize: 24,
+    fontSize: 27,
     fontWeight: '900',
     color: C.onSurface,
     letterSpacing: -0.3,
   },
   userLevel: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '700',
     color: C.primary,
   },
@@ -376,12 +382,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: C.onSurface,
   },
   cardSub: {
-    fontSize: 11,
+    fontSize: 14,
     color: C.onSurfaceVariant,
     marginTop: 4,
     lineHeight: 16,
@@ -389,7 +395,7 @@ const styles = StyleSheet.create({
   circleLabel: {
     position: 'absolute',
     fontWeight: '900',
-    fontSize: 13,
+    fontSize: 16,
     color: C.onSurface,
   },
   silaSteps: {
@@ -411,12 +417,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '900',
     color: C.onSurface,
   },
   lihatSemua: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '800',
     color: C.primary,
     letterSpacing: 1,
@@ -454,13 +460,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   badgeTitle: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '800',
     color: C.onSurface,
     textAlign: 'center',
   },
   badgeDesc: {
-    fontSize: 10,
+    fontSize: 13,
     color: C.onSurfaceVariant,
     textAlign: 'center',
   },
@@ -484,14 +490,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statLabel: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: '800',
     color: C.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   statValue: {
-    fontSize: 28,
+    fontSize: 31,
     fontWeight: '900',
     color: C.onSurface,
     letterSpacing: -1,
@@ -523,12 +529,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   questTitle: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '800',
     color: C.onSurface,
   },
   questSub: {
-    fontSize: 11,
+    fontSize: 14,
     color: C.onSurfaceVariant,
     marginTop: 2,
   },
@@ -568,7 +574,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.bg + '40',
   },
   navLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
     color: C.secondary + '99',
     textTransform: 'uppercase',
