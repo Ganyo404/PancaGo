@@ -40,6 +40,8 @@ const MISI_SCENARIOS = {
     scenes: [
       {
         question: 'Budi melihat teman-temannya merayakan hari raya berbeda. Apa yang harus Budi lakukan?',
+        hint: 'Sila pertama mengajarkan kita untuk saling menghargai keyakinan orang lain.',
+        explanation: 'Menghargai perayaan agama lain adalah bentuk nyata toleransi beragama sesuai Sila ke-1.',
         choices: [
           { id: 'a', icon: 'favorite', label: 'Ikut merayakan bersama', sub: 'Tunjukkan sikap toleransi', color: C.tertiaryContainer, iconColor: C.tertiary },
           { id: 'b', icon: 'block',    label: 'Menolak ikut serta',    sub: 'Karena berbeda agama',   color: C.salmonContainer,    iconColor: C.salmon      },
@@ -49,6 +51,8 @@ const MISI_SCENARIOS = {
       },
       {
         question: 'Di kelas, ada teman yang mengejek agama orang lain. Apa yang Budi lakukan?',
+        hint: 'Kita harus membela kebenaran dan menjaga perasaan orang lain.',
+        explanation: 'Menegur dengan baik membantu menciptakan lingkungan yang damai dan saling menghormati.',
         choices: [
           { id: 'a', icon: 'thumb-down',    label: 'Ikut mengejek',          sub: 'Agar dianggap keren',       color: C.salmonContainer,         iconColor: C.salmon           },
           { id: 'b', icon: 'record-voice-over', label: 'Menegur dengan baik', sub: 'Ajak menghargai perbedaan', color: C.tertiaryContainer,       iconColor: C.tertiary         },
@@ -64,6 +68,8 @@ const MISI_SCENARIOS = {
     scenes: [
       {
         question: 'Di jalan, Budi melihat orang tua kesulitan membawa belanjaan. Apa yang Budi lakukan?',
+        hint: 'Bantulah sesama manusia tanpa memandang usia.',
+        explanation: 'Membantu orang lain yang kesulitan adalah pengamalan nilai kemanusiaan yang adil dan beradab.',
         choices: [
           { id: 'a', icon: 'directions-walk', label: 'Lewat begitu saja',        sub: 'Buru-buru pulang',            color: C.salmonContainer,         iconColor: C.salmon           },
           { id: 'b', icon: 'volunteer-activism', label: 'Menawarkan bantuan',    sub: 'Tunjukkan sikap peduli',      color: C.tertiaryContainer,       iconColor: C.tertiary         },
@@ -79,6 +85,8 @@ const MISI_SCENARIOS = {
     scenes: [
       {
         question: 'Di sekolah, Budi melihat temannya terjatuh. Apa yang harus Budi lakukan?',
+        hint: 'Persatuan dimulai dari kepedulian terhadap teman terdekat.',
+        explanation: 'Menolong teman mempererat tali persaudaraan dan persatuan di sekolah.',
         choices: [
           { id: 'a', icon: 'volunteer-activism', label: 'Membantu teman',         sub: 'Tunjukkan sikap peduli sesama',   color: C.tertiaryContainer,       iconColor: C.tertiary         },
           { id: 'b', icon: 'support-agent',      label: 'Mengadu ke Guru',        sub: 'Meminta bantuan orang dewasa',    color: C.salmonContainer,         iconColor: C.salmon           },
@@ -88,6 +96,8 @@ const MISI_SCENARIOS = {
       },
       {
         question: 'Kelompok belajar Budi berselisih pilihan tema proyek. Apa yang Budi lakukan?',
+        hint: 'Cari jalan tengah agar semua orang merasa senang.',
+        explanation: 'Musyawarah adalah cara terbaik untuk mencapai kesepakatan tanpa pertengkaran.',
         choices: [
           { id: 'a', icon: 'record-voice-over', label: 'Memaksa pilihan sendiri', sub: 'Tidak mau kompromi',           color: C.salmonContainer,         iconColor: C.salmon           },
           { id: 'b', icon: 'groups',            label: 'Musyawarah bersama',     sub: 'Cari solusi yang disepakati',  color: C.tertiaryContainer,       iconColor: C.tertiary         },
@@ -97,6 +107,8 @@ const MISI_SCENARIOS = {
       },
       {
         question: 'Ada teman baru dari daerah lain bergabung di kelas. Budi sebaiknya…',
+        hint: 'Sikap ramah membantu persatuan antar daerah.',
+        explanation: 'Menyambut teman baru dari daerah manapun adalah wujud persatuan Indonesia.',
         choices: [
           { id: 'a', icon: 'person-add',  label: 'Menyambut dengan hangat', sub: 'Ajak berkenalan bersama',      color: C.tertiaryContainer,       iconColor: C.tertiary         },
           { id: 'b', icon: 'do-not-disturb', label: 'Mengabaikannya',       sub: 'Sudah punya teman sendiri',   color: C.salmonContainer,         iconColor: C.salmon           },
@@ -112,6 +124,8 @@ const MISI_SCENARIOS = {
     scenes: [
       {
         question: 'Kelas Budi harus memilih ketua kelas baru. Cara yang tepat adalah…',
+        hint: 'Gunakan musyawarah atau pemungutan suara.',
+        explanation: 'Voting adalah salah satu cara berdemokrasi yang adil untuk mencapai mufakat.',
         choices: [
           { id: 'a', icon: 'how-to-vote',  label: 'Voting bersama',           sub: 'Suara semua orang didengar',   color: C.tertiaryContainer,       iconColor: C.tertiary         },
           { id: 'b', icon: 'person',       label: 'Budi yang tentukan',       sub: 'Karena merasa paling pintar',  color: C.salmonContainer,         iconColor: C.salmon           },
@@ -127,6 +141,8 @@ const MISI_SCENARIOS = {
     scenes: [
       {
         question: 'Budi melihat teman yang tidak kebagian makanan saat pesta kelas. Budi sebaiknya…',
+        hint: 'Keadilan berarti semua orang mendapatkan haknya.',
+        explanation: 'Berbagi secara adil memastikan setiap orang merasa dihargai.',
         choices: [
           { id: 'a', icon: 'fastfood',     label: 'Makan sendirian saja',     sub: 'Sudah ambil duluan',           color: C.salmonContainer,         iconColor: C.salmon           },
           { id: 'b', icon: 'share',        label: 'Berbagi makanannya',       sub: 'Agar semua bisa menikmati',   color: C.tertiaryContainer,       iconColor: C.tertiary         },
@@ -138,17 +154,19 @@ const MISI_SCENARIOS = {
   },
 };
 
+
 // ── Choice card component ─────────────────────────────────────────────────────
-function ChoiceCard({ choice, selected, onSelect }) {
+function ChoiceCard({ choice, selected, onSelect, disabled, customStyle }) {
   const isSelected = selected === choice.id;
   return (
     <Pressable
-      onPress={() => onSelect(choice.id)}
+      onPress={() => !disabled && onSelect(choice.id)}
       style={({ pressed }) => [
         styles.choiceCard,
         { backgroundColor: choice.color },
         isSelected && styles.choiceCardSelected,
-        pressed && { opacity: 0.85 },
+        pressed && !disabled && { opacity: 0.85 },
+        customStyle,
       ]}
     >
       <View style={[styles.choiceIconWrap, { backgroundColor: 'rgba(255,255,255,0.6)' }]}>
@@ -196,19 +214,29 @@ export default function OnMisiScreen() {
 
   const [sceneIndex, setSceneIndex] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [showHint, setShowHint] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const scene = scenes[sceneIndex];
   const isLast = sceneIndex === scenes.length - 1;
+  const isCorrect = selected === scene.correctId;
   const misiLabel = `MISI ${String(misiId).padStart(2, '0')}`;
 
+  function handleSelect(id) {
+    if (showFeedback) return;
+    setSelected(id);
+    setShowFeedback(true);
+  }
+
   function handleNext() {
-    if (!selected) return;
+    if (!showFeedback) return;
     if (isLast) {
-      // Selesai — kembali ke misi screen
       router.push('/misi');
     } else {
       setSceneIndex((prev) => prev + 1);
       setSelected(null);
+      setShowFeedback(false);
+      setShowHint(false);
     }
   }
 
@@ -222,8 +250,12 @@ export default function OnMisiScreen() {
         <View style={styles.headerTitleChip}>
           <Text style={styles.headerTitleText}>Kisah PancaGo!</Text>
         </View>
-        {/* spacer to center the chip */}
-        <View style={{ width: 38 }} />
+        <Pressable 
+          style={[styles.backBtn, showHint && { backgroundColor: C.primary }]} 
+          onPress={() => setShowHint(!showHint)}
+        >
+          <MaterialIcons name="lightbulb" size={20} color={showHint ? '#fff' : C.onSurface} />
+        </Pressable>
       </View>
 
       <ScrollView
@@ -244,25 +276,56 @@ export default function OnMisiScreen() {
         </View>
 
         {/* ── SCENARIO LABEL ────────────────────────────────────────────── */}
-        <View style={styles.scenarioLabelRow}>
-          <MaterialIcons name="auto-stories" size={13} color={C.secondary} />
-          <Text style={styles.scenarioLabelText}>PETUALANGAN BUDI</Text>
-        </View>
+        {showHint && (
+          <View style={styles.hintContainer}>
+            <Text style={styles.hintTitle}>Petunjuk 💡</Text>
+            <Text style={styles.hintBody}>{scene.hint}</Text>
+          </View>
+        )}
 
         {/* ── QUESTION ──────────────────────────────────────────────────── */}
         <Text style={styles.question}>{scene.question}</Text>
 
         {/* ── CHOICES ───────────────────────────────────────────────────── */}
         <View style={styles.choiceList}>
-          {scene.choices.map((choice) => (
-            <ChoiceCard
-              key={choice.id}
-              choice={choice}
-              selected={selected}
-              onSelect={setSelected}
-            />
-          ))}
+          {scene.choices.map((choice) => {
+            const isCorrectChoice = choice.id === scene.correctId;
+            const isSelected = selected === choice.id;
+            let cardStyle = {};
+            if (showFeedback) {
+              if (isCorrectChoice) cardStyle = { borderColor: '#4CAF50', borderWidth: 2 };
+              else if (isSelected) cardStyle = { borderColor: '#E53935', borderWidth: 2, opacity: 0.7 };
+              else cardStyle = { opacity: 0.5 };
+            }
+
+            return (
+              <ChoiceCard
+                key={choice.id}
+                choice={choice}
+                selected={selected}
+                onSelect={handleSelect}
+                disabled={showFeedback}
+                customStyle={cardStyle}
+              />
+            );
+          })}
         </View>
+
+        {showFeedback && (
+          <View style={[styles.feedbackBox, { backgroundColor: isCorrect ? '#E8F5E9' : '#FFEBEE' }]}>
+            <View style={styles.feedbackHeader}>
+               <MaterialIcons 
+                 name={isCorrect ? "check-circle" : "cancel"} 
+                 size={24} 
+                 color={isCorrect ? "#4CAF50" : "#E53935"} 
+               />
+               <Text style={[styles.feedbackTitle, { color: isCorrect ? "#2E7D32" : "#C62828" }]}>
+                 {isCorrect ? 'Benar!' : 'Kurang Tepat'}
+               </Text>
+            </View>
+            <Text style={styles.feedbackText}>{scene.explanation}</Text>
+          </View>
+        )}
 
         {/* ── HINT TEXT ─────────────────────────────────────────────────── */}
         <Text style={styles.hintText}>PILIH DENGAN BIJAK, PETUALANG!</Text>
@@ -513,5 +576,51 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     fontSize: 18,
     letterSpacing: 0.5,
+  },
+  // FEEDBACK
+  feedbackBox: {
+    padding: 18,
+    borderRadius: 20,
+    marginTop: 8,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  feedbackHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  feedbackTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  feedbackText: {
+    fontSize: 16,
+    color: C.onSurfaceVariant,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+
+  // HINT
+  hintContainer: {
+    backgroundColor: '#FFF9C4',
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FBC02D',
+    marginBottom: 24,
+  },
+  hintTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#F57F17',
+    marginBottom: 4,
+  },
+  hintBody: {
+    fontSize: 15,
+    color: '#5D4037',
+    lineHeight: 20,
   },
 });

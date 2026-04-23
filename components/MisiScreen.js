@@ -215,8 +215,7 @@ export default function MisiScreen() {
           <Svg
             width={SW}
             height={MAP_H}
-            style={{ position: 'absolute', top: 0, left: 0 }}
-            pointerEvents="none"
+            style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
           >
             <Path
               d={pathD}

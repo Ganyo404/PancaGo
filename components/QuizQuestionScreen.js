@@ -82,6 +82,7 @@ export default function QuizQuestionScreen() {
   const [score, setScore] = useState(prevScore);
   const [answered, setAnswered] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(null); // null | true | false
+  const [showHint, setShowHint] = useState(false);
 
   const currentQ = questions[currentIndex];
   const totalQ = questions.length;
@@ -89,30 +90,26 @@ export default function QuizQuestionScreen() {
 
   const handleAnswer = (choice) => {
     if (answered) return; // jangan jawab ulang
-    setAnswered(true);
-    setLastCorrect(choice.isCorrect);
-    const newScore = choice.isCorrect ? score + quizSet.points : score;
+    const ok = choice.isCorrect;
+    const newScore = ok ? score + (quizSet.points / totalQ) : score;
     setScore(newScore);
 
     setTimeout(() => {
-      if (currentIndex + 1 < totalQ) {
-        // Ada soal berikutnya — pindah langsung di screen ini
-        setCurrentIndex((prev) => prev + 1);
-        setAnswered(false);
-        setLastCorrect(null);
-      } else {
-        // Semua soal selesai — ke FeedbackScreen (sebagai summary akhir)
-        router.push({
-          pathname: '/quiz/feedback',
-          params: {
-            isCorrect: newScore > 0 ? 'true' : 'false',
-            earnedPoints: String(newScore),
-            nextQuestion: undefined, // tidak ada soal lagi
-            quizId,
-            totalScore: String(newScore),
-          },
-        });
-      }
+      router.push({
+        pathname: '/quiz/feedback',
+        params: {
+          isCorrect: ok ? 'true' : 'false',
+          explanation: currentQ.explanation || 'Jawaban yang tepat!',
+          quizId,
+          currentIndex: String(currentIndex),
+          totalQ: String(totalQ),
+          score: String(newScore),
+        },
+      });
+      // Reset state untuk soal berikutnya (saat user balik ke sini)
+      setAnswered(false);
+      setLastCorrect(null);
+      setShowHint(false);
     }, 600);
   };
 
@@ -130,10 +127,23 @@ export default function QuizQuestionScreen() {
 
         <Text style={styles.headerTitle}>The Crystal Forest Quest</Text>
 
-        <View style={styles.headerIcon}>
-          <MaterialIcons name="eco" size={22} color={C.primary} />
+        <View style={styles.pointsBadge}>
+          <Pressable 
+            style={[styles.hintBtn, showHint && styles.hintBtnActive]} 
+            onPress={() => setShowHint(!showHint)}
+          >
+            <MaterialIcons name="lightbulb" size={20} color={showHint ? '#fff' : C.primary} />
+            <Text style={[styles.hintText, showHint && { color: '#fff' }]}>Hint</Text>
+          </Pressable>
         </View>
       </View>
+
+      {showHint && (
+        <View style={styles.hintContainer}>
+          <Text style={styles.hintTitle}>Petunjuk 💡</Text>
+          <Text style={styles.hintBody}>{currentQ.hint || 'Pikirkan baik-baik ya!'}</Text>
+        </View>
+      )}
 
       {/* ── SCROLLABLE CONTENT ───────────────────────────────────────────────── */}
       <ScrollView
@@ -366,14 +376,43 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // FOOTER HINT
-  footerHint: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '700',
-    color: C.onSurfaceVariant,
-    opacity: 0.7,
-    letterSpacing: 0.3,
-    paddingHorizontal: 8,
+  hintBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+    borderWidth: 1.5,
+    borderColor: '#52651E',
+  },
+  hintBtnActive: {
+    backgroundColor: '#52651E',
+  },
+  hintText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#52651E',
+  },
+  hintContainer: {
+    backgroundColor: '#FFF9C4',
+    marginHorizontal: 20,
+    marginTop: 10,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#FBC02D',
+  },
+  hintTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#F57F17',
+    marginBottom: 4,
+  },
+  hintBody: {
+    fontSize: 14,
+    color: '#5D4037',
+    lineHeight: 20,
   },
 });

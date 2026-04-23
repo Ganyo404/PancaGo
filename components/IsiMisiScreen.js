@@ -202,17 +202,44 @@ export default function IsiMisiScreen() {
           <Text style={styles.questDesc}>{misi.description}</Text>
         </View>
 
-        {/* ── TASK LIST ───────────────────────────────────────────────────── */}
-        <View style={styles.taskList}>
-          {misi.tasks.map((t) => (
-            <TaskItem key={t.id} task={t} />
-          ))}
-        </View>
+        {/* ── CONTENT TABS ────────────────────────────────────────────────── */}
+        {activeTab === 'mulai' ? (
+          <View style={styles.taskList}>
+            {misi.tasks.map((t) => (
+              <TaskItem key={t.id} task={t} />
+            ))}
+          </View>
+        ) : activeTab === 'kuis' ? (
+          <View style={styles.quizInfoBox}>
+            <MaterialIcons name="extension" size={40} color={C.primary} />
+            <Text style={styles.quizInfoTitle}>Tantangan Kristal Kuis</Text>
+            <Text style={styles.quizInfoDesc}>
+              Uji pemahamanmu tentang {misi.silaLabel} dan dapatkan bonus poin serta bintang!
+            </Text>
+            <View style={styles.rewardRow}>
+               <View style={styles.rewardItem}>
+                  <MaterialIcons name="stars" size={20} color={C.amber} />
+                  <Text style={styles.rewardText}>+50 Pts</Text>
+               </View>
+               <View style={styles.rewardItem}>
+                  <MaterialIcons name="military-tech" size={20} color={C.salmon} />
+                  <Text style={styles.rewardText}>Bintang</Text>
+               </View>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.quizInfoBox}>
+            <MaterialIcons name="emoji-events" size={40} color={C.amber} />
+            <Text style={styles.quizInfoTitle}>Hadiah Petualangan</Text>
+            <Text style={styles.quizInfoDesc}>
+              Selesaikan semua misi di {misi.title} untuk membuka kostum eksklusif!
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
-      {/* ── BOTTOM TABS + CTA ────────────────────────────────────────────── */}
+      {/* ── BOTTOM SHEET + CTA ────────────────────────────────────────────── */}
       <View style={[styles.bottomSheet, { paddingBottom: insets.bottom + 8 }]}>
-        {/* Three tabs */}
         <View style={styles.tabRow}>
           {BOTTOM_TABS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -237,10 +264,15 @@ export default function IsiMisiScreen() {
           })}
         </View>
 
-        {/* CTA Button */}
         <Pressable
           style={({ pressed }) => [styles.ctaBtn, pressed && { opacity: 0.88 }]}
-          onPress={() => router.push(`/on-misi?id=${misiId}`)}
+          onPress={() => {
+            if (activeTab === 'kuis') {
+              router.push(`/quiz/question?quizId=quiz-sila${misiId}`);
+            } else {
+              router.push(`/on-misi?id=${misiId}`);
+            }
+          }}
         >
           <LinearGradient
             colors={[C.primary, '#3A4F10']}
@@ -248,8 +280,14 @@ export default function IsiMisiScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.ctaGradient}
           >
-            <MaterialIcons name="play-arrow" size={22} color="#fff" />
-            <Text style={styles.ctaText}>MULAI MISI</Text>
+            <MaterialIcons 
+              name={activeTab === 'kuis' ? "extension" : "play-arrow"} 
+              size={22} 
+              color="#fff" 
+            />
+            <Text style={styles.ctaText}>
+              {activeTab === 'kuis' ? 'MULAI KUIS' : 'MULAI MISI'}
+            </Text>
           </LinearGradient>
         </Pressable>
       </View>
@@ -493,5 +531,51 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     fontSize: 18,
     letterSpacing: 1,
+  },
+  // QUIZ INFO BOX
+  quizInfoBox: {
+    marginHorizontal: 16,
+    marginTop: 20,
+    backgroundColor: C.white90,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  quizInfoTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: C.onSurface,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  quizInfoDesc: {
+    fontSize: 15,
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  rewardRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 20,
+  },
+  rewardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: C.primaryContainer + '60',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 99,
+    gap: 6,
+  },
+  rewardText: {
+    fontWeight: '800',
+    color: C.primary,
+    fontSize: 14,
   },
 });

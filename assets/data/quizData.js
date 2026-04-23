@@ -15,7 +15,9 @@ export const QUIZ_SETS = [
       {
         id: 'q1-1',
         text: 'Apa bunyi Sila pertama Pancasila?',
-        image: null, // ganti dengan require('../../assets/images/materials/sila1.png') setelah gambar ada
+        image: null,
+        hint: 'Ingatlah bahwa Sila pertama berkaitan dengan kepercayaan kepada Tuhan.',
+        explanation: 'Sila pertama berbunyi "Ketuhanan Yang Maha Esa" yang berarti kita harus percaya kepada Tuhan.',
         choices: [
           { id: 'A', text: 'Ketuhanan Yang Maha Esa', isCorrect: true },
           { id: 'B', text: 'Kemanusiaan yang Adil dan Beradab', isCorrect: false },
@@ -27,6 +29,8 @@ export const QUIZ_SETS = [
         id: 'q1-2',
         text: 'Simbol sila pertama Pancasila adalah...',
         image: null,
+        hint: 'Bentuknya bercahaya dan ada di langit malam.',
+        explanation: 'Bintang adalah simbol sila pertama yang melambangkan cahaya rohani bagi setiap manusia.',
         choices: [
           { id: 'A', text: 'Rantai', isCorrect: false },
           { id: 'B', text: 'Bintang', isCorrect: true },
@@ -38,6 +42,8 @@ export const QUIZ_SETS = [
         id: 'q1-3',
         text: 'Berikut ini adalah contoh sikap pengamalan Sila ke-1, kecuali...',
         image: null,
+        hint: 'Cari sikap yang tidak baik atau tidak menghormati agama.',
+        explanation: 'Mengejek teman yang beribadah adalah sikap buruk dan melanggar nilai toleransi beragama.',
         choices: [
           { id: 'A', text: 'Berdoa sebelum belajar', isCorrect: false },
           { id: 'B', text: 'Menghormati teman yang berbeda agama', isCorrect: false },
@@ -59,6 +65,8 @@ export const QUIZ_SETS = [
         id: 'q2-1',
         text: 'Bagaimana cara kita menjaga persatuan di sekolah?',
         image: null,
+        hint: 'Kita harus merangkul semua orang tanpa pilih kasih.',
+        explanation: 'Bermain bersama semua teman tanpa membeda-bedakan adalah kunci menjaga persatuan.',
         choices: [
           { id: 'A', text: 'Bermain bersama semua teman', isCorrect: true },
           { id: 'B', text: 'Hanya bermain dengan satu orang', isCorrect: false },
@@ -70,6 +78,8 @@ export const QUIZ_SETS = [
         id: 'q2-2',
         text: 'Sila ke-2 mengajarkan kita untuk bersikap...',
         image: null,
+        hint: 'Sikap ini berkaitan dengan kemanusiaan dan sopan santun.',
+        explanation: 'Sila ke-2 berbunyi "Kemanusiaan yang Adil dan Beradab", jadi kita harus bersikap adil dan sopan.',
         choices: [
           { id: 'A', text: 'Egois dan tidak peduli', isCorrect: false },
           { id: 'B', text: 'Adil dan beradab kepada semua orang', isCorrect: true },
@@ -81,6 +91,8 @@ export const QUIZ_SETS = [
         id: 'q2-3',
         text: 'Ketika teman kita jatuh, kita sebaiknya...',
         image: null,
+        hint: 'Bayangkan jika kamu yang jatuh, apa yang kamu inginkan dari temanmu?',
+        explanation: 'Menolong teman yang kesusahan adalah salah satu bentuk nilai kemanusiaan.',
         choices: [
           { id: 'A', text: 'Menertawakannya', isCorrect: false },
           { id: 'B', text: 'Pura-pura tidak melihat', isCorrect: false },

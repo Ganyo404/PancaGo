@@ -19,7 +19,7 @@ export default function RootLayout() {
       <Stack.Screen name="splash" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="home" />
-      <Stack.Screen name="quiz" />
+      <Stack.Screen name="quiz/index" />
       <Stack.Screen name="misi" />
       <Stack.Screen name="karakter" />
       <Stack.Screen name="profil" />

@@ -52,22 +52,33 @@ export default function QuizFeedbackScreen() {
   const [btnPressed, setBtnPressed] = React.useState(false);
 
   const isCorrect = params.isCorrect === 'true';
-  const earnedPoints = params.earnedPoints || '0';
-  const nextQuestion = params.nextQuestion !== undefined ? parseInt(params.nextQuestion, 10) : null;
   const quizId = params.quizId || null;
-  const totalScore = params.totalScore || earnedPoints;
+  const explanation = params.explanation || '';
+  const currentIndex = parseInt(params.currentIndex || '0', 10);
+  const totalQ = parseInt(params.totalQ || '0', 10);
+  const currentScore = params.score || '0';
 
   const titleText = isCorrect ? 'Benar! Kamu Hebat!' : 'Sayang Sekali!';
-  const subtitleText = isCorrect 
-    ? 'Kamu berhasil menjawab tantangan ini.\nAyo kumpulkan lebih banyak koin!'
-    : 'Jawabanmu kurang tepat.\nJangan menyerah, coba pelajari lagi!';
   const pointsColor = isCorrect ? C.primary : '#E53E3E';
 
   const handleLanjut = () => {
-    router.push({
-      pathname: '/quiz/result',
-      params: { finalScore: totalScore, quizId },
-    });
+    if (currentIndex + 1 < totalQ) {
+      // Masih ada soal — balik ke QuestionScreen dengan index baru
+      router.push({
+        pathname: '/quiz/question',
+        params: { 
+          quizId, 
+          startIndex: String(currentIndex + 1),
+          prevScore: currentScore
+        },
+      });
+    } else {
+      // Semua soal selesai — ke Hasil Akhir
+      router.push({
+        pathname: '/quiz/result',
+        params: { finalScore: currentScore, quizId },
+      });
+    }
   };
 
   return (
@@ -84,42 +95,40 @@ export default function QuizFeedbackScreen() {
         <View style={styles.mascotArea}>
           <View style={styles.mascotRing}>
             <Image
-              source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLEo4cKB9IuM8seYV6vkRtfImNhZIFDS6PXAtfT9-Xcr6j-RYqqaHE18hb4Dcn2Je16qKNCGAyheNQaJ2N_jzshipvL7fDpES4Hu9zfbMvabCo4HQLfzdKMHQ4hg8yJdQsXFoKHVcNz-lwQ1xj3cd19FakNoxt_g1eO3pOYzyYsKC2wf-Qq5_gvCla0hqBXRxjXwnrQiLNeEIVlfDzWph5qwBEIFGn9EFofM73MCmo-gDN65wWfggqLUmc73Ibgj2SoQ6v-p9ObCk',
-              }}
+              source={require('../assets/images/characters/Asih/Asih1.png')}
               style={styles.mascotImg}
               resizeMode="contain"
             />
           </View>
 
-          {/* Star badge */}
-          <View style={styles.starBadge}>
-            <MaterialIcons name="star" size={28} color={C.onTertiary} />
+          {/* Correct/Incorrect Icon badge */}
+          <View style={[styles.starBadge, !isCorrect && { backgroundColor: '#E53E3E' }]}>
+            <MaterialIcons name={isCorrect ? "check" : "close"} size={28} color="#fff" />
           </View>
         </View>
 
         {/* Heading */}
         <View style={styles.headingArea}>
-          <Text style={[styles.title, !isCorrect && { color: pointsColor }]}>{titleText}</Text>
-          <Text style={styles.subtitle}>
-            {subtitleText}
-          </Text>
+          <Text style={[styles.title, !isCorrect && { color: '#E53E3E' }]}>{titleText}</Text>
+          <View style={styles.explanationBox}>
+             <Text style={styles.explanationText}>{explanation}</Text>
+          </View>
         </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Poin Didapat</Text>
+            <Text style={styles.statLabel}>Skor Saat Ini</Text>
             <View style={styles.statValue}>
-              <MaterialIcons name="monetization-on" size={26} color={pointsColor} />
-              <Text style={[styles.statNum, { color: pointsColor }]}>+{earnedPoints}</Text>
+              <MaterialIcons name="stars" size={26} color={C.primary} />
+              <Text style={[styles.statNum, { color: C.primary }]}>{Math.round(currentScore)}</Text>
             </View>
           </View>
 
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Waktu</Text>
+            <Text style={styles.statLabel}>Progres</Text>
             <View style={styles.statValue}>
-              <MaterialIcons name="timer" size={26} color={C.secondary} />
-              <Text style={[styles.statNum, { color: C.secondary }]}>0:45</Text>
+              <MaterialIcons name="Assignment" size={26} color={C.secondary} />
+              <Text style={[styles.statNum, { color: C.secondary }]}>{currentIndex + 1}/{totalQ}</Text>
             </View>
           </View>
         </View>
@@ -132,21 +141,30 @@ export default function QuizFeedbackScreen() {
           style={[
             styles.ctaBtn,
             btnPressed && styles.ctaBtnPressed,
+            !isCorrect && { backgroundColor: C.secondary, shadowColor: '#2D331C' }
           ]}
         >
-          <Text style={styles.ctaBtnText}>Lanjut</Text>
+          <Text style={styles.ctaBtnText}>
+            {currentIndex + 1 < totalQ ? 'Soal Berikutnya' : 'Lihat Hasil'}
+          </Text>
           <MaterialIcons name="arrow-forward" size={24} color="#fff" />
-        </Pressable>
-
-        {/* Detail link */}
-        <Pressable style={styles.detailLink}>
-          <Text style={styles.detailLinkText}>LIHAT DETAIL JAWABAN</Text>
         </Pressable>
 
       </View>
 
-      {/* Pagination dots */}
-      <PaginationDots />
+      {/* Progress indicators */}
+      <View style={styles.dotsRow}>
+        {Array.from({ length: totalQ }).map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.dot,
+              i === currentIndex ? styles.dotActive : styles.dotInactive,
+              i < currentIndex && { backgroundColor: '#fff', opacity: 0.8 }
+            ]}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -353,5 +371,20 @@ const styles = StyleSheet.create({
   dotInactive: {
     width: 10,
     backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  // EXPLANATION
+  explanationBox: {
+    backgroundColor: C.surfaceContainerLow,
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 8,
+    width: '100%',
+  },
+  explanationText: {
+    fontSize: 16,
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+    lineHeight: 22,
+    fontStyle: 'italic',
   },
 });

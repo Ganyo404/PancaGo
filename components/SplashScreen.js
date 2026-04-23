@@ -22,13 +22,13 @@ export default function SplashScreen() {
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 8 }]}>
 
       {/* ── Background decorations ──────────────────────────────────────── */}
-      <View style={styles.decoTop} pointerEvents="none">
+      <View style={[styles.decoTop, { pointerEvents: 'none' }]}>
         <MaterialIcons name="cloud" size={48} color="#3b4d06" style={{ opacity: 0.4 }} />
         <MaterialIcons name="star" size={36} color="#3b4d06" style={{ opacity: 0.4, marginTop: 44, marginRight: 16 }} />
       </View>
 
       {/* Bottom semicircle blobs */}
-      <View style={styles.decoBottom} pointerEvents="none">
+      <View style={[styles.decoBottom, { pointerEvents: 'none' }]}>
         <View style={styles.blobLeft} />
         <View style={styles.blobRight} />
       </View>
