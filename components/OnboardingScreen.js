@@ -1,36 +1,40 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { CHARACTERS } from '../constants/characters';
-import { useUserStore } from '../store/useUserStore';
-
-// Ambil karakter yang gratis (locked: false)
-const FREE_AVATARS = CHARACTERS.filter(c => !c.locked);
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const setOnboarded = useUserStore(s => s.setOnboarded);
-  const [selectedAvatar, setSelectedAvatar] = useState(FREE_AVATARS[0]?.id || 'dirga');
+  const { login, isLoading, error, clearError } = useAuthStore();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleStart = () => {
-    setOnboarded(username, selectedAvatar);
-    router.replace('/home');
+  const handleLogin = async () => {
+    if (!username.trim() || !password) {
+      Alert.alert('Oops!', 'Username dan kata sandi tidak boleh kosong.');
+      return;
+    }
+    clearError();
+    const result = await login({ username: username.trim(), password });
+    if (!result.success) {
+      Alert.alert('Login Gagal', result.error || 'Username atau kata sandi salah.');
+    }
+    // Jika sukses, _layout.js akan otomatis redirect ke /home
   };
 
   return (
@@ -48,32 +52,32 @@ export default function OnboardingScreen() {
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <View style={styles.headerArea}>
-          {/* Star badge */}
           <View style={styles.starBadge}>
             <MaterialIcons name="star" size={24} color="#574500" />
           </View>
-
-          <Text style={styles.title}>{'Yuk mulai\npetualangan\nbelajar!'}</Text>
+          <Text style={styles.title}>{'Selamat\nDatang\nKembali!'}</Text>
           <Text style={styles.subtitle}>
-            {'Buat profil serumu untuk menjelajahi\ndunia PancaGo!'}
+            {'Masuk untuk melanjutkan\npetualanganmu di PancaGo!'}
           </Text>
         </View>
 
         {/* ── Form Card ────────────────────────────────────────────────────── */}
         <View style={styles.card}>
 
-          {/* Name input */}
+          {/* Username input */}
           <View style={styles.fieldGroup}>
             <View style={styles.fieldLabel}>
-              <MaterialIcons name="edit" size={14} color="#6b8227" />
-              <Text style={styles.fieldLabelText}>Nama Panggilan</Text>
+              <MaterialIcons name="person" size={14} color="#6b8227" />
+              <Text style={styles.fieldLabelText}>Username</Text>
             </View>
             <TextInput
               style={styles.input}
-              placeholder="Siapa namamu?"
+              placeholder="Masukkan username-mu"
               placeholderTextColor="rgba(27,28,28,0.3)"
               value={username}
               onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="next"
             />
           </View>
@@ -92,54 +96,31 @@ export default function OnboardingScreen() {
               onChangeText={setPassword}
               secureTextEntry
               returnKeyType="done"
+              onSubmitEditing={handleLogin}
             />
           </View>
 
-          {/* Avatar picker */}
-          <View style={styles.fieldGroup}>
-            <View style={styles.fieldLabel}>
-              <MaterialIcons name="face" size={14} color="#6b8227" />
-              <Text style={styles.fieldLabelText}>Pilih Karaktermu</Text>
-            </View>
-
-            <View style={styles.avatarRow}>
-              {FREE_AVATARS.map((av) => {
-                const isSelected = av.id === selectedAvatar;
-                return (
-                  <Pressable
-                    key={av.id}
-                    onPress={() => setSelectedAvatar(av.id)}
-                    style={[
-                      styles.avatarWrap,
-                      isSelected ? styles.avatarSelected : styles.avatarUnselected,
-                    ]}
-                  >
-                    <Image
-                      source={av.image}
-                      style={[styles.avatarImg, !isSelected && { opacity: 0.8 }]}
-                    />
-                    {isSelected && (
-                      <View style={styles.avatarOverlay}>
-                        <View style={styles.checkBadge}>
-                          <MaterialIcons name="check" size={16} color="#6b8227" />
-                        </View>
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
         </View>
 
         {/* ── Actions ──────────────────────────────────────────────────────── */}
         <View style={styles.actions}>
           <Pressable
-            style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.85 }]}
-            onPress={handleStart}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && { opacity: 0.85 },
+              isLoading && { opacity: 0.7 },
+            ]}
+            onPress={handleLogin}
+            disabled={isLoading}
           >
-            <Text style={styles.primaryBtnText}>Mulai!</Text>
-            <Text style={styles.rocketEmoji}>🚀</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Text style={styles.primaryBtnText}>Masuk</Text>
+                <Text style={styles.rocketEmoji}>🚀</Text>
+              </>
+            )}
           </Pressable>
 
           <View style={styles.loginHintRow}>
@@ -151,7 +132,6 @@ export default function OnboardingScreen() {
         </View>
       </ScrollView>
 
-      {/* Background gradient overlay (bottom) */}
       <View style={styles.bgGradientBottom} pointerEvents="none" />
     </KeyboardAvoidingView>
   );
@@ -167,8 +147,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 28,
   },
-
-  // ── Header ──────────────────────────────────────────────────────────────
   headerArea: {
     width: '100%',
     alignItems: 'flex-start',
@@ -206,8 +184,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 16,
   },
-
-  // ── Card ────────────────────────────────────────────────────────────────
   card: {
     width: '100%',
     backgroundColor: '#FFFFFF',
@@ -244,63 +220,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1B1C1C',
   },
-
-  // ── Avatar picker ────────────────────────────────────────────────────────
-  avatarRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  avatarWrap: {
-    borderRadius: 999,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarSelected: {
-    width: 68,
-    height: 68,
-    borderWidth: 3,
-    borderColor: '#6b8227',
-    // ring effect via shadow
-    shadowColor: '#d4ec95',
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 0,
-  },
-  avatarUnselected: {
-    width: 56,
-    height: 56,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    backgroundColor: '#f0f0f0',
-  },
-  avatarImg: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.28)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-
-  // ── Actions ──────────────────────────────────────────────────────────────
   actions: {
     width: '100%',
     alignItems: 'center',
@@ -347,8 +266,6 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     textDecorationStyle: 'solid',
   },
-
-  // ── Background decoration ─────────────────────────────────────────────────
   bgGradientBottom: {
     position: 'absolute',
     bottom: 0,

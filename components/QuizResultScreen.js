@@ -1,19 +1,20 @@
+import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
+  Dimensions,
   Image,
   Pressable,
   ScrollView,
   StyleSheet,
-  Dimensions,
+  Text,
+  View,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useUserStore } from '../store/useUserStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { useProgressStore } from '../store/useProgressStore';
+import { useUserStore } from '../store/useUserStore';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -55,21 +56,31 @@ export default function QuizResultScreen() {
 
   const { points, addPoints } = useUserStore();
   const { completeQuiz } = useProgressStore();
+  const { updateProfile, updateProgress } = useAuthStore();
 
   const finalScore = parseInt(params.finalScore || '0', 10);
   const quizId = params.quizId;
+  const passed = params.passed === 'true';
+  const silaNum = params.silaNum || '1';
 
   // Simpan poin ke store dan tandai kuis selesai (hanya sekali saat layar ini pertama muncul)
   React.useEffect(() => {
-    if (finalScore > 0) {
-      addPoints(finalScore);
-    }
-    if (quizId) {
-      completeQuiz(quizId);
-    }
+    const syncData = async () => {
+      if (finalScore > 0) {
+        const { points: newPoints, level: newLevel } = addPoints(finalScore);
+        await updateProfile({ points: newPoints, level: newLevel });
+      }
+      // Hanya tandai selesai (unlock quiz berikutnya) jika skor > 0
+      if (quizId && passed) {
+        const newQuizIds = completeQuiz(quizId);
+        await updateProgress({ completed_quiz_ids: newQuizIds });
+      }
+    };
+    syncData();
   }, []);
 
-  const totalScore = points + finalScore; // tampilkan total termasuk yg baru didapat
+  // points sudah diupdate oleh addPoints — tampilkan langsung dari store
+  const totalScore = points;
 
   return (
     <View style={styles.container}>
@@ -124,7 +135,9 @@ export default function QuizResultScreen() {
           <View style={styles.cardBlob} />
 
           <Text style={styles.cardSub}>Quiz Selesai!</Text>
-          <Text style={styles.cardTitle}>Hebat Sekali!</Text>
+          <Text style={[styles.cardTitle, !passed && { color: '#E53E3E' }]}>
+            {passed ? 'Hebat Sekali!' : 'Coba Lagi!'}
+          </Text>
 
           <View style={styles.scoreRow}>
             <MaterialIcons name="emoji-events" size={32} color="#ebc23e" />
@@ -135,13 +148,17 @@ export default function QuizResultScreen() {
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: '85%' }]} />
           </View>
-          <Text style={styles.rankText}>Kamu lebih unggul dari 92% pemain hari ini!</Text>
+          <Text style={styles.rankText}>
+            {passed
+              ? 'Kamu lebih unggul dari 92% pemain hari ini!'
+              : 'Jawab dengan benar untuk membuka quiz berikutnya!'}
+          </Text>
 
           {/* Action buttons */}
           <View style={styles.btnGroup}>
             <Pressable
               style={({ pressed }) => [styles.primaryBtnWrap, pressed && { opacity: 0.87 }]}
-              onPress={() => router.push('/home')}
+              onPress={() => router.replace(`/quiz/sila?silaNum=${silaNum}`)}
             >
               <LinearGradient
                 colors={['#6b8227', '#8bad3f']}
@@ -156,10 +173,12 @@ export default function QuizResultScreen() {
 
             <Pressable
               style={({ pressed }) => [styles.secondaryBtn, pressed && { opacity: 0.87 }]}
-              onPress={() => router.push('/quiz/question')}
+              onPress={() => {
+                router.replace(`/quiz/question?quizId=${encodeURIComponent(quizId)}`);
+              }}
             >
               <MaterialIcons name="replay" size={20} color={C.brown} />
-              <Text style={styles.secondaryBtnText}>Main Ulangi</Text>
+              <Text style={styles.secondaryBtnText}>Jawab Ulang</Text>
             </Pressable>
           </View>
         </View>

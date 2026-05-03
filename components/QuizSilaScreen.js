@@ -1,10 +1,18 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getQuizBySila } from '../assets/data/quizData';
 import { useProgressStore } from '../store/useProgressStore';
+import { useQuizStore } from '../store/useQuizStore';
 import { useUserStore } from '../store/useUserStore';
 
 const C = {
@@ -33,7 +41,7 @@ const LEVEL_COLOR = {
 function StarRow({ filled }) {
   return (
     <View style={st.starRow}>
-      {[1,2,3].map(i => (
+      {[1, 2, 3].map(i => (
         <MaterialIcons key={i} name="star" size={13}
           color={i <= filled ? C.tertiary : '#D1D5DB'} />
       ))}
@@ -55,7 +63,10 @@ function QuizItem({ quiz, locked, done, onPress }) {
       <View style={[st.iconCircle, { backgroundColor: locked ? C.locked : lc.bg }]}>
         {locked
           ? <MaterialIcons name="lock" size={22} color="#fff" />
-          : <MaterialIcons name={done ? 'check-circle' : quiz.stars === 1 ? 'extension' : quiz.stars === 2 ? 'favorite' : 'explore'} size={24} color={lc.icon} />
+          : <MaterialIcons
+              name={done ? 'check-circle' : quiz.stars === 1 ? 'extension' : quiz.stars === 2 ? 'favorite' : 'explore'}
+              size={24} color={lc.icon}
+            />
         }
       </View>
       <View style={st.cardBody}>
@@ -77,11 +88,31 @@ export default function QuizSilaScreen() {
   const insets = useSafeAreaInsets();
   const { silaNum } = useLocalSearchParams();
   const sNum = Number(silaNum) || 1;
+
   const { points } = useUserStore();
-  const { completedQuizIds } = useProgressStore();
+  // Baca completedQuizIds langsung dari store (reactive)
+  const completedQuizIds = useProgressStore((s) => s.completedQuizIds);
+  const { loadQuizzesBySila, getQuizzesBySila, isLoadingSila, error } = useQuizStore();
+
+  // Ticker untuk force re-render saat layar kembali fokus
+  const [focusTick, setFocusTick] = useState(0);
 
   const sila = SILA_INFO.find(s => s.num === sNum) ?? SILA_INFO[0];
-  const quizzes = getQuizBySila(sNum); // 9 quiz
+
+  // Fetch soal dari Supabase saat layar pertama dibuka
+  useEffect(() => {
+    loadQuizzesBySila(sNum);
+  }, [sNum]);
+
+  // Force re-render setiap kali layar kembali aktif (setelah balik dari quiz)
+  useFocusEffect(
+    useCallback(() => {
+      setFocusTick(t => t + 1);
+    }, [])
+  );
+
+  const quizzes = getQuizzesBySila(sNum);
+  const loading = isLoadingSila(sNum);
 
   return (
     <View style={st.container}>
@@ -114,36 +145,58 @@ export default function QuizSilaScreen() {
           <Image source={sila.logo} style={st.heroLogo} resizeMode="contain" />
         </View>
 
-        {/* SECTION LABELS */}
-        {['Pemula', 'Menengah', 'Petualang'].map((levelName, li) => {
-          const chunk = quizzes.slice(li * 3, li * 3 + 3);
-          return (
-            <View key={levelName} style={st.section}>
-              <View style={st.sectionHeader}>
-                <MaterialIcons
-                  name={li === 0 ? 'emoji-events' : li === 1 ? 'military-tech' : 'rocket-launch'}
-                  size={18} color={C.primary}
-                />
-                <Text style={st.sectionTitle}>{levelName}</Text>
-              </View>
-              {chunk.map((quiz, idx) => {
-                const globalIdx = li * 3 + idx;
-                const prevId = globalIdx > 0 ? quizzes[globalIdx - 1].id : null;
-                const done = completedQuizIds.includes(quiz.id);
-                const locked = globalIdx > 0 && !completedQuizIds.includes(prevId);
-                return (
-                  <QuizItem
-                    key={quiz.id}
-                    quiz={quiz}
-                    locked={locked}
-                    done={done}
-                    onPress={(id) => router.push(`/quiz/question?quizId=${id}`)}
+        {/* LOADING STATE */}
+        {loading && (
+          <View style={st.loadingWrap}>
+            <ActivityIndicator size="large" color={C.primary} />
+            <Text style={st.loadingText}>Memuat soal...</Text>
+          </View>
+        )}
+
+        {/* ERROR STATE */}
+        {!loading && error && (
+          <View style={st.errorWrap}>
+            <MaterialIcons name="wifi-off" size={40} color={C.onSurfaceVariant} />
+            <Text style={st.errorText}>Gagal memuat soal. Periksa koneksimu.</Text>
+            <Pressable style={st.retryBtn} onPress={() => loadQuizzesBySila(sNum)}>
+              <Text style={st.retryText}>Coba Lagi</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {/* QUIZ LIST — dikelompokkan per difficulty */}
+        {!loading && !error && quizzes.length > 0 && (
+          ['Pemula', 'Menengah', 'Petualang'].map((levelName, li) => {
+            const chunk = quizzes.filter(q => q.level === levelName);
+            return (
+              <View key={levelName} style={st.section}>
+                <View style={st.sectionHeader}>
+                  <MaterialIcons
+                    name={li === 0 ? 'emoji-events' : li === 1 ? 'military-tech' : 'rocket-launch'}
+                    size={18} color={C.primary}
                   />
-                );
-              })}
-            </View>
-          );
-        })}
+                  <Text style={st.sectionTitle}>{levelName}</Text>
+                </View>
+                {chunk.map((quiz, idx) => {
+                  // Cari index global quiz ini di dalam seluruh 9 quiz sila ini
+                  const globalIdx = quizzes.findIndex(q => q.id === quiz.id);
+                  const prevQuiz = globalIdx > 0 ? quizzes[globalIdx - 1] : null;
+                  const done = completedQuizIds.includes(quiz.id);
+                  const locked = globalIdx > 0 && !completedQuizIds.includes(prevQuiz?.id);
+                  return (
+                    <QuizItem
+                      key={quiz.id}
+                      quiz={quiz}
+                      locked={locked}
+                      done={done}
+                      onPress={(id) => router.push(`/quiz/question?quizId=${encodeURIComponent(id)}`)}
+                    />
+                  );
+                })}
+              </View>
+            );
+          })
+        )}
 
         {/* EVENT BANNER */}
         <View style={st.eventBanner}>
@@ -188,6 +241,14 @@ const st = StyleSheet.create({
   heroName: { fontSize: 18, fontWeight: '900', color: C.onSurface, lineHeight: 22, marginBottom: 8 },
   heroDesc: { fontSize: 13, color: C.onSurfaceVariant, lineHeight: 18 },
   heroLogo: { width: 80, height: 80, marginLeft: 12 },
+
+  loadingWrap: { alignItems: 'center', paddingVertical: 48, gap: 12 },
+  loadingText: { fontSize: 15, color: C.onSurfaceVariant, fontWeight: '600' },
+
+  errorWrap: { alignItems: 'center', paddingVertical: 48, gap: 12, paddingHorizontal: 32 },
+  errorText: { fontSize: 15, color: C.onSurfaceVariant, textAlign: 'center', lineHeight: 20 },
+  retryBtn: { backgroundColor: C.primary, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 999 },
+  retryText: { color: '#fff', fontWeight: '800', fontSize: 14 },
 
   section: { paddingHorizontal: 20, marginTop: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },

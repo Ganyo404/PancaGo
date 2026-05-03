@@ -1,11 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import { useEffect } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useUserStore } from '../store/useUserStore';
 import { useProgressStore } from '../store/useProgressStore';
-import { getQuizBySila } from '../assets/data/quizData';
+import { useQuizStore } from '../store/useQuizStore';
+import { useUserStore } from '../store/useUserStore';
 
 const C = {
   bg: '#FAFAF3', primary: '#52651E', primaryContainer: '#D4E8A0',
@@ -65,7 +65,13 @@ export default function QuizSelectionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { points } = useUserStore();
-  const { completedQuizIds } = useProgressStore();
+  const completedQuizIds = useProgressStore((s) => s.completedQuizIds);
+  const { loadQuizzesBySila } = useQuizStore();
+
+  // Preload semua sila agar count progress akurat
+  useEffect(() => {
+    [1, 2, 3, 4, 5].forEach(n => loadQuizzesBySila(n));
+  }, []);
 
   return (
     <View style={st.container}>
@@ -100,8 +106,11 @@ export default function QuizSelectionScreen() {
         {/* Sila cards */}
         <View style={st.cardList}>
           {SILAS.map((sila) => {
-            const quizzes = getQuizBySila(sila.num);
-            const doneCount = quizzes.filter(q => completedQuizIds.includes(q.id)).length;
+            // Hitung doneCount langsung dari completedQuizIds berdasarkan pola ID
+            // Format: quiz-sila{n}-{difficulty}-{order} — tidak perlu tunggu fetch Supabase
+            const doneCount = completedQuizIds.filter(
+              id => id.startsWith(`quiz-sila${sila.num}-`)
+            ).length;
             return (
               <SilaCard
                 key={sila.num}

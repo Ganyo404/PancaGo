@@ -1,16 +1,17 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthStore } from '../store/useAuthStore';
 import { useProgressStore } from '../store/useProgressStore';
 import { useUserStore } from '../store/useUserStore';
 
@@ -211,6 +212,7 @@ export default function OnMisiScreen() {
   const params = useLocalSearchParams();
   const completeMisi = useProgressStore((state) => state.completeMisi);
   const addPoints = useUserStore((state) => state.addPoints);
+  const { updateProfile, updateProgress, fetchProgress } = useAuthStore();
 
   const misiId = Number(params.id) || 3;
   const data = MISI_SCENARIOS[misiId] ?? MISI_SCENARIOS[3];
@@ -236,12 +238,19 @@ export default function OnMisiScreen() {
     if (!showFeedback) return;
     if (isLast) {
       // Tandai semua sub-misi node ini selesai (format: misi-{nodeId}a/b/c)
+      let latestMisiIds = [];
       ['a', 'b', 'c'].forEach((suffix) => {
-        completeMisi(`misi-${misiId}${suffix}`);
+        latestMisiIds = completeMisi(`misi-${misiId}${suffix}`);
       });
       // Reward poin
       const xpReward = 75 + (misiId * 25);
-      addPoints(xpReward);
+      const { points: newPoints, level: newLevel } = addPoints(xpReward);
+      // Sync ke Supabase
+      updateProfile({ points: newPoints, level: newLevel });
+      fetchProgress().then((current) => {
+        const merged = Array.from(new Set([...(current?.completed_misi_ids ?? []), ...latestMisiIds]));
+        updateProgress({ completed_misi_ids: merged });
+      });
       router.push('/misi');
     } else {
       setSceneIndex((prev) => prev + 1);

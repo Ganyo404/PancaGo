@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Animated,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Animated,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { QUIZ_SETS, getQuizById } from '../assets/data/quizData';
+import { useQuizStore } from '../store/useQuizStore';
 import { useUserStore } from '../store/useUserStore';
 
 // ── Colour tokens ────────────────────────────────────────────────────────────
@@ -71,21 +72,45 @@ export default function QuizQuestionScreen() {
   const params = useLocalSearchParams();
 
   const recordAnswer = useUserStore((s) => s.recordAnswer);
+  const { loadQuizById, getQuizById } = useQuizStore();
 
-  const quizId = params.quizId || QUIZ_SETS[0].id;
-  const quizSet = getQuizById(quizId) || QUIZ_SETS[0];
-  const questions = quizSet.questions;
-
-  // Baca startIndex dari params (saat kembali dari FeedbackScreen)
+  const quizId = params.quizId || '';
   const startIndex = parseInt(params.startIndex || '0', 10);
   const prevScore = parseInt(params.prevScore || '0', 10);
 
+  const [quizSet, setQuizSet] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [score, setScore] = useState(prevScore);
   const [answered, setAnswered] = useState(false);
-  const [lastCorrect, setLastCorrect] = useState(null); // null | true | false
   const [showHint, setShowHint] = useState(false);
 
+  // Fetch soal dari Supabase (atau ambil dari cache)
+  useEffect(() => {
+    if (!quizId) return;
+    const cached = getQuizById(quizId);
+    if (cached) {
+      setQuizSet(cached);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    loadQuizById(quizId).then((q) => {
+      setQuizSet(q);
+      setLoading(false);
+    });
+  }, [quizId]);
+
+  if (loading || !quizSet) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color="#52651E" />
+        <Text style={{ marginTop: 12, color: '#5E6644', fontWeight: '600' }}>Memuat soal...</Text>
+      </View>
+    );
+  }
+
+  const questions = quizSet.questions;
   const currentQ = questions[currentIndex];
   const totalQ = questions.length;
   const PROGRESS = (currentIndex + 1) / totalQ;
@@ -95,7 +120,7 @@ export default function QuizQuestionScreen() {
     const ok = choice.isCorrect;
     const newScore = ok ? score + (quizSet.points / totalQ) : score;
     setScore(newScore);
-    recordAnswer(ok); // update streak: +1 jika benar, reset ke 0 jika salah
+    recordAnswer(ok);
 
     setTimeout(() => {
       router.push({
@@ -107,11 +132,10 @@ export default function QuizQuestionScreen() {
           currentIndex: String(currentIndex),
           totalQ: String(totalQ),
           score: String(newScore),
+          silaNum: String(quizSet.silaNum || '1'),
         },
       });
-      // Reset state untuk soal berikutnya (saat user balik ke sini)
       setAnswered(false);
-      setLastCorrect(null);
       setShowHint(false);
     }, 600);
   };

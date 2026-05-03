@@ -1,14 +1,13 @@
+import { MaterialIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  Image,
-  Pressable,
-  StyleSheet,
-  Animated,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const C = {
@@ -57,13 +56,13 @@ export default function QuizFeedbackScreen() {
   const currentIndex = parseInt(params.currentIndex || '0', 10);
   const totalQ = parseInt(params.totalQ || '0', 10);
   const currentScore = params.score || '0';
+  const silaNum = params.silaNum || '1';
 
   const titleText = isCorrect ? 'Benar! Kamu Hebat!' : 'Sayang Sekali!';
   const pointsColor = isCorrect ? C.primary : '#E53E3E';
 
   const handleLanjut = () => {
     if (currentIndex + 1 < totalQ) {
-      // Masih ada soal — balik ke QuestionScreen dengan index baru
       router.push({
         pathname: '/quiz/question',
         params: { 
@@ -73,10 +72,14 @@ export default function QuizFeedbackScreen() {
         },
       });
     } else {
-      // Semua soal selesai — ke Hasil Akhir
       router.push({
         pathname: '/quiz/result',
-        params: { finalScore: currentScore, quizId },
+        params: {
+          finalScore: currentScore,
+          quizId,
+          passed: parseFloat(currentScore) > 0 ? 'true' : 'false',
+          silaNum: params.silaNum || '1',
+        },
       });
     }
   };

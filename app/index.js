@@ -1,9 +1,9 @@
 import { Redirect } from 'expo-router';
-import { useUserStore } from '../store/useUserStore';
-import { View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function Index() {
-  const { isLoaded, hasOnboarded } = useUserStore();
+  const { isLoaded, session } = useAuthStore();
 
   if (!isLoaded) {
     return (
@@ -13,5 +13,6 @@ export default function Index() {
     );
   }
 
-  return <Redirect href={hasOnboarded ? "/home" : "/splash"} />;
+  // Jika sudah login, langsung ke home. Jika belum, ke splash (login/register)
+  return <Redirect href={session ? '/home' : '/splash'} />;
 }

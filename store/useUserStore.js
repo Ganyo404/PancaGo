@@ -1,129 +1,110 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const STORAGE_KEY = 'pancago_user';
 
 // Hitung level berdasarkan total poin (setiap 500 poin = 1 level)
 function calcLevel(points) {
   return Math.max(1, Math.floor(points / 500) + 1);
 }
 
-// Hitung streak hari ini (sederhana: tambah setiap kali quiz selesai)
 const defaultState = {
   name: 'Petualang',
   points: 0,
   level: 1,
   streak: 0,
   quizDoneToday: false,
-  equippedCharId: 'asih', // Default character
+  equippedCharId: 'asih',
   ownedCharIds: ['asih'],
-  hasOnboarded: false,
 };
 
+/**
+ * useUserStore
+ * State lokal untuk data user yang sedang login.
+ * Data di-load dari Supabase (via useAuthStore.profile) saat login,
+ * dan setiap perubahan di-sync ke Supabase.
+ */
 export const useUserStore = create((set, get) => ({
   ...defaultState,
   isLoaded: false,
 
-  // ─── Muat data dari penyimpanan ─────────────────────────────────────────────
-  loadUser: async () => {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw);
-        set({ ...defaultState, ...saved, isLoaded: true });
-      } else {
-        set({ isLoaded: true });
-      }
-    } catch (_) {
-      set({ isLoaded: true });
-    }
+  // ── Load dari profil Supabase ──────────────────────────────────────────────
+  loadFromProfile: (profile) => {
+    if (!profile) return;
+    set({
+      name: profile.username || 'Petualang',
+      points: profile.points ?? 0,
+      level: profile.level ?? 1,
+      streak: profile.streak ?? 0,
+      equippedCharId: profile.equipped_char_id ?? 'asih',
+      ownedCharIds: profile.owned_char_ids ?? ['asih'],
+      quizDoneToday: false,
+      isLoaded: true,
+    });
   },
 
-  // ─── Simpan state ke penyimpanan ────────────────────────────────────────────
-  _save: async (nextState) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-    } catch (_) {}
+  // ── Reset ke default (saat logout) ────────────────────────────────────────
+  resetUser: () => {
+    set({ ...defaultState, isLoaded: false });
   },
 
-  // ─── Tambah poin (setelah quiz berhasil) ────────────────────────────────────
+  // ── Tambah poin (setelah quiz berhasil) ────────────────────────────────────
+  // Mengembalikan { points, level } baru untuk di-sync ke Supabase
   addPoints: (amount) => {
+    let result = {};
     set((state) => {
       const newPoints = state.points + amount;
       const newLevel = calcLevel(newPoints);
-      const next = { ...state, points: newPoints, level: newLevel, quizDoneToday: true };
-      get()._save(next);
-      return next;
+      result = { points: newPoints, level: newLevel };
+      return { ...state, points: newPoints, level: newLevel, quizDoneToday: true };
     });
+    return result;
   },
 
-  // ─── Catat jawaban quiz (tambah streak jika benar, reset jika salah) ─────────
+  // ── Catat jawaban quiz (tambah streak jika benar, reset jika salah) ─────────
+  // Mengembalikan streak baru untuk di-sync ke Supabase
   recordAnswer: (isCorrect) => {
+    let newStreak = 0;
     set((state) => {
-      const newStreak = isCorrect ? state.streak + 1 : 0;
-      const next = { ...state, streak: newStreak };
-      get()._save(next);
-      return next;
+      newStreak = isCorrect ? state.streak + 1 : 0;
+      return { ...state, streak: newStreak };
     });
+    return newStreak;
   },
 
-  // ─── Kurangi poin (saat beli karakter) ──────────────────────────────────────
+  // ── Kurangi poin (saat beli karakter) ──────────────────────────────────────
   spendPoints: (amount) => {
     const { points } = get();
-    if (points < amount) return false; // tidak cukup poin
-    set((state) => {
-      const next = { ...state, points: state.points - amount };
-      get()._save(next);
-      return next;
-    });
+    if (points < amount) return false;
+    set((state) => ({ ...state, points: state.points - amount }));
     return true;
   },
 
-  // ─── Beli dan pasang karakter ────────────────────────────────────────────────
+  // ── Beli dan pasang karakter ────────────────────────────────────────────────
+  // Mengembalikan { success, ownedCharIds, equippedCharId, points } untuk sync
   buyCharacter: (charId, cost) => {
     const { ownedCharIds } = get();
     if (ownedCharIds.includes(charId)) {
-      // Sudah punya, langsung equip
-      set((state) => {
-        const next = { ...state, equippedCharId: charId };
-        get()._save(next);
-        return next;
-      });
-      return true;
+      set((state) => ({ ...state, equippedCharId: charId }));
+      return { success: true, equippedCharId: charId, ownedCharIds, points: get().points };
     }
     const success = get().spendPoints(cost);
     if (success) {
-      set((state) => {
-        const next = {
-          ...state,
-          ownedCharIds: [...state.ownedCharIds, charId],
-          equippedCharId: charId,
-        };
-        get()._save(next);
-        return next;
-      });
-    }
-    return success;
-  },
-
-  // ─── Atur onboarding (nama & avatar pertama) ──────────────────────────────
-  setOnboarded: (name, charId) => {
-    set((state) => {
-      const next = { 
-        ...state, 
-        name: name || 'Petualang',
+      const newOwned = [...ownedCharIds, charId];
+      set((state) => ({
+        ...state,
+        ownedCharIds: newOwned,
         equippedCharId: charId,
-        ownedCharIds: Array.from(new Set([...state.ownedCharIds, charId])),
-        hasOnboarded: true 
+      }));
+      return {
+        success: true,
+        equippedCharId: charId,
+        ownedCharIds: newOwned,
+        points: get().points,
       };
-      get()._save(next);
-      return next;
-    });
+    }
+    return { success: false };
   },
 
-  // ─── Reset (untuk testing) ──────────────────────────────────────────────────
-  resetUser: async () => {
-    await AsyncStorage.removeItem(STORAGE_KEY);
-    set({ ...defaultState });
+  // ── Equip karakter ─────────────────────────────────────────────────────────
+  equipCharacter: (charId) => {
+    set((state) => ({ ...state, equippedCharId: charId }));
   },
 }));

@@ -1,20 +1,20 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import {
+    Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
-import { useUserStore } from '../store/useUserStore';
-import { useProgressStore } from '../store/useProgressStore';
 import { getCharacter } from '../constants/characters';
+import { useAuthStore } from '../store/useAuthStore';
+import { useProgressStore } from '../store/useProgressStore';
+import { useUserStore } from '../store/useUserStore';
 
 // MASCOT dihapus karena avatar sudah dinamis
 
@@ -118,6 +118,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { points, level, name, streak, equippedCharId } = useUserStore();
   const { isSilaDone, getCompletedSilaCount, getSilaPct } = useProgressStore();
+  const { logout, profile } = useAuthStore();
 
   const silaCompleted = [1, 2, 3, 4, 5].map((n) => isSilaDone(n));
   const completedCount = getCompletedSilaCount();
@@ -245,6 +246,18 @@ export default function ProfileScreen() {
             <Text style={styles.questSub}>Selesaikan tantangan hari ini</Text>
           </View>
           <MaterialIcons name="chevron-right" size={22} color={C.primary} />
+        </Pressable>
+
+        {/* ── Logout Button ─────────────────────────────────────────────── */}
+        <Pressable
+          style={({ pressed }) => [styles.logoutBtn, pressed && { opacity: 0.8 }]}
+          onPress={async () => {
+            await logout();
+            router.replace('/splash');
+          }}
+        >
+          <MaterialIcons name="logout" size={20} color="#B55C4E" />
+          <Text style={styles.logoutText}>Keluar dari Akun</Text>
         </Pressable>
       </ScrollView>
 
@@ -537,6 +550,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: C.onSurfaceVariant,
     marginTop: 2,
+  },
+
+  // LOGOUT BUTTON
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(181,92,78,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(181,92,78,0.25)',
+    marginBottom: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#B55C4E',
   },
 
   // NAVBAR

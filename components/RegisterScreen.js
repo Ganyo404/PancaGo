@@ -1,29 +1,71 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { register, isLoading, clearError } = useAuthStore();
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleRegister = () => {
-    // Nanti ditambahkan logika database di sini
-    // Untuk sekarang kembali ke onboarding atau langsung ke home
-    router.replace('/onboarding');
+  const handleRegister = async () => {
+    // Validasi input
+    if (!username.trim() || !email.trim() || !password || !confirmPassword) {
+      Alert.alert('Oops!', 'Semua kolom harus diisi.');
+      return;
+    }
+    if (username.trim().length < 3) {
+      Alert.alert('Oops!', 'Username minimal 3 karakter.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      Alert.alert('Oops!', 'Format email tidak valid.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Oops!', 'Kata sandi minimal 6 karakter.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Oops!', 'Kata sandi dan konfirmasi tidak cocok.');
+      return;
+    }
+
+    clearError();
+    const result = await register({
+      username: username.trim(),
+      email: email.trim(),
+      password,
+    });
+
+    if (result.success) {
+      Alert.alert(
+        'Berhasil! 🎉',
+        'Akun berhasil dibuat. Selamat datang di PancaGo!',
+        [{ text: 'OK' }]
+      );
+      // _layout.js akan otomatis redirect ke /home setelah register sukses
+    } else {
+      Alert.alert('Pendaftaran Gagal', result.error || 'Terjadi kesalahan.');
+    }
   };
 
   return (
@@ -41,11 +83,9 @@ export default function RegisterScreen() {
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <View style={styles.headerArea}>
-          {/* Star badge */}
           <View style={styles.starBadge}>
             <MaterialIcons name="person-add" size={24} color="#574500" />
           </View>
-
           <Text style={styles.title}>{'Buat\nAkun Baru!'}</Text>
           <Text style={styles.subtitle}>
             {'Daftar sekarang untuk menyimpan\nprogres petualanganmu!'}
@@ -55,18 +95,20 @@ export default function RegisterScreen() {
         {/* ── Form Card ────────────────────────────────────────────────────── */}
         <View style={styles.card}>
 
-          {/* Name input */}
+          {/* Username input */}
           <View style={styles.fieldGroup}>
             <View style={styles.fieldLabel}>
-              <MaterialIcons name="edit" size={14} color="#6b8227" />
-              <Text style={styles.fieldLabelText}>Nama Lengkap</Text>
+              <MaterialIcons name="person" size={14} color="#6b8227" />
+              <Text style={styles.fieldLabelText}>Username</Text>
             </View>
             <TextInput
               style={styles.input}
-              placeholder="Siapa namamu?"
+              placeholder="Buat username unikmu"
               placeholderTextColor="rgba(27,28,28,0.3)"
               value={username}
               onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="next"
             />
           </View>
@@ -75,7 +117,7 @@ export default function RegisterScreen() {
           <View style={styles.fieldGroup}>
             <View style={styles.fieldLabel}>
               <MaterialIcons name="email" size={14} color="#6b8227" />
-              <Text style={styles.fieldLabelText}>Gmail</Text>
+              <Text style={styles.fieldLabelText}>Email</Text>
             </View>
             <TextInput
               style={styles.input}
@@ -85,6 +127,7 @@ export default function RegisterScreen() {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="next"
             />
           </View>
@@ -97,12 +140,30 @@ export default function RegisterScreen() {
             </View>
             <TextInput
               style={styles.input}
-              placeholder="Buat kata sandi"
+              placeholder="Minimal 6 karakter"
               placeholderTextColor="rgba(27,28,28,0.3)"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              returnKeyType="next"
+            />
+          </View>
+
+          {/* Confirm Password input */}
+          <View style={styles.fieldGroup}>
+            <View style={styles.fieldLabel}>
+              <MaterialIcons name="lock-outline" size={14} color="#6b8227" />
+              <Text style={styles.fieldLabelText}>Konfirmasi Kata Sandi</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Ulangi kata sandi"
+              placeholderTextColor="rgba(27,28,28,0.3)"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
               returnKeyType="done"
+              onSubmitEditing={handleRegister}
             />
           </View>
 
@@ -111,11 +172,22 @@ export default function RegisterScreen() {
         {/* ── Actions ──────────────────────────────────────────────────────── */}
         <View style={styles.actions}>
           <Pressable
-            style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.85 }]}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && { opacity: 0.85 },
+              isLoading && { opacity: 0.7 },
+            ]}
             onPress={handleRegister}
+            disabled={isLoading}
           >
-            <Text style={styles.primaryBtnText}>Daftar</Text>
-            <Text style={styles.rocketEmoji}>✨</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Text style={styles.primaryBtnText}>Daftar</Text>
+                <Text style={styles.rocketEmoji}>✨</Text>
+              </>
+            )}
           </Pressable>
 
           <View style={styles.loginHintRow}>
@@ -127,7 +199,6 @@ export default function RegisterScreen() {
         </View>
       </ScrollView>
 
-      {/* Background gradient overlay (bottom) */}
       <View style={styles.bgGradientBottom} pointerEvents="none" />
     </KeyboardAvoidingView>
   );

@@ -1,19 +1,20 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert,
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Modal,
+    Alert,
+    Dimensions,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CHARACTERS, getCharacter } from '../constants/characters';
+import { useAuthStore } from '../store/useAuthStore';
 import { useUserStore } from '../store/useUserStore';
 
 const { width: SW } = Dimensions.get('window');
@@ -115,6 +116,7 @@ export default function KarakterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { points, ownedCharIds, equippedCharId, buyCharacter } = useUserStore();
+  const { updateProfile } = useAuthStore();
   const avatarUri = getCharacter(equippedCharId)?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
 
   const [selectedChar, setSelectedChar] = useState(null);
@@ -142,15 +144,24 @@ export default function KarakterScreen() {
 
     if (selectedChar.locked && !isOwned) {
       // Proses beli
-      const ok = buyCharacter(selectedChar.id, selectedChar.pts || 0);
-      if (!ok) {
+      const result = buyCharacter(selectedChar.id, selectedChar.pts || 0);
+      if (!result.success) {
         Alert.alert('Poin Tidak Cukup', 'Selesaikan kuis untuk kumpul poin!');
       } else {
+        // Sync ke Supabase
+        updateProfile({
+          points: result.points,
+          owned_char_ids: result.ownedCharIds,
+          equipped_char_id: result.equippedCharId,
+        });
         Alert.alert('Berhasil!', `${selectedChar.name} sekarang milikmu.`);
       }
     } else {
       // Pakai karakter
-      buyCharacter(selectedChar.id, 0);
+      const result = buyCharacter(selectedChar.id, 0);
+      if (result.success) {
+        updateProfile({ equipped_char_id: result.equippedCharId });
+      }
       Alert.alert('Dipakai!', `${selectedChar.name} telah digunakan sebagai avatarmu.`);
     }
   };
