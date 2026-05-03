@@ -11,7 +11,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { QUIZ_SETS } from '../assets/data/quizData';
+import { QUIZ_SETS, getQuizById } from '../assets/data/quizData';
 
 // ── Colour tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -71,7 +71,7 @@ export default function QuizQuestionScreen() {
 
   // Ambil set kuis dari quizData berdasarkan quizId param (default ke set pertama)
   const quizId = params.quizId || QUIZ_SETS[0].id;
-  const quizSet = QUIZ_SETS.find((q) => q.id === quizId) || QUIZ_SETS[0];
+  const quizSet = getQuizById(quizId) || QUIZ_SETS[0];
   const questions = quizSet.questions;
 
   // Baca startIndex dari params (saat kembali dari FeedbackScreen)
@@ -120,7 +120,7 @@ export default function QuizQuestionScreen() {
       <View style={styles.header}>
         <Pressable
           style={({ pressed }) => [styles.closeBtn, pressed && { backgroundColor: '#f0f4e6' }]}
-          onPress={() => router.push('/quiz')}
+          onPress={() => router.back()}
         >
           <MaterialIcons name="close" size={22} color="#78716c" />
         </Pressable>
