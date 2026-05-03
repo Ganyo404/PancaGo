@@ -1,15 +1,14 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import {
+  Dimensions,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SW, height: SH } = Dimensions.get('window');
@@ -59,16 +58,7 @@ export default function SplashScreen() {
             <MaterialIcons name="arrow-forward" size={24} color="white" />
           </LinearGradient>
         </Pressable>
-
-        {/* Secondary login link */}
-        <View style={styles.loginRow}>
-          <Text style={styles.loginHint}>Sudah punya karakter?</Text>
-          <Pressable onPress={() => router.push('/home')}>
-            <Text style={styles.loginLink}>Masuk Akun</Text>
-          </Pressable>
-        </View>
       </View>
-
     </View>
   );
 }

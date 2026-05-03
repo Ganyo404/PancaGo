@@ -11,6 +11,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useProgressStore } from '../store/useProgressStore';
+import { useUserStore } from '../store/useUserStore';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -207,6 +209,8 @@ export default function OnMisiScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
+  const completeMisi = useProgressStore((state) => state.completeMisi);
+  const addPoints = useUserStore((state) => state.addPoints);
 
   const misiId = Number(params.id) || 3;
   const data = MISI_SCENARIOS[misiId] ?? MISI_SCENARIOS[3];
@@ -231,6 +235,13 @@ export default function OnMisiScreen() {
   function handleNext() {
     if (!showFeedback) return;
     if (isLast) {
+      // Tandai semua sub-misi node ini selesai (format: misi-{nodeId}a/b/c)
+      ['a', 'b', 'c'].forEach((suffix) => {
+        completeMisi(`misi-${misiId}${suffix}`);
+      });
+      // Reward poin
+      const xpReward = 75 + (misiId * 25);
+      addPoints(xpReward);
       router.push('/misi');
     } else {
       setSceneIndex((prev) => prev + 1);

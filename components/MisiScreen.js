@@ -11,7 +11,7 @@ import { MISI_NODES } from '../assets/data/misiData';
 import { getCharacter } from '../constants/characters';
 
 const { width: SW } = Dimensions.get('window');
-const MAP_H = 960;
+const MAP_H = 5000;
 
 const C = {
   bg: '#ABC270',
@@ -137,16 +137,16 @@ export default function MisiScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { points, equippedCharId, name } = useUserStore();
-  const { isSilaDone, isSilaUnlocked } = useProgressStore();
+  const { isNodeDone, isNodeUnlocked } = useProgressStore();
 
   const avatarUri = getCharacter(equippedCharId)?.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuByiFa9FqNjUiekBPiMxEo06K6KQQWZPOAE5fHKj4pq8lndiIini3kgzldOUBkvdyRWFAiDf-s6tZCQfMJyqEelR2goR7Nju-QmT8vM06PjFeiLP2iYB0tQQT0LGLUak1cSPFSIjuLRi-qT81Yc8BiG3imqYdupv2zc19mGcnHHBFF1HDeHierTpDqyHkw0cYJ9VA2aqmqvI5i9iecZXspT7M4FgudnLSJY94qNL5yRX-jnK6gf0bnnpFNhwZo6IWM3KhRdmPSr0NM';
 
-  // Bangun NODES dari data misiData + status dari store
+  // Bangun NODES: unlock satu-per-satu dari bawah ke atas (node 1 dulu, setelah selesai node 2, dst)
   const NODES = MISI_NODES.map((node) => ({
     ...node,
-    done: isSilaDone(node.silaNum),
-    locked: !isSilaUnlocked(node.silaNum),
-    active: isSilaUnlocked(node.silaNum) && !isSilaDone(node.silaNum),
+    done:   isNodeDone(node.id),
+    locked: !isNodeUnlocked(node.id),
+    active: isNodeUnlocked(node.id) && !isNodeDone(node.id),
   }));
 
   const pathD = buildPath(NODES);
