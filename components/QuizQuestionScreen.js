@@ -12,6 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { QUIZ_SETS, getQuizById } from '../assets/data/quizData';
+import { useUserStore } from '../store/useUserStore';
 
 // ── Colour tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -69,7 +70,8 @@ export default function QuizQuestionScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
 
-  // Ambil set kuis dari quizData berdasarkan quizId param (default ke set pertama)
+  const recordAnswer = useUserStore((s) => s.recordAnswer);
+
   const quizId = params.quizId || QUIZ_SETS[0].id;
   const quizSet = getQuizById(quizId) || QUIZ_SETS[0];
   const questions = quizSet.questions;
@@ -89,10 +91,11 @@ export default function QuizQuestionScreen() {
   const PROGRESS = (currentIndex + 1) / totalQ;
 
   const handleAnswer = (choice) => {
-    if (answered) return; // jangan jawab ulang
+    if (answered) return;
     const ok = choice.isCorrect;
     const newScore = ok ? score + (quizSet.points / totalQ) : score;
     setScore(newScore);
+    recordAnswer(ok); // update streak: +1 jika benar, reset ke 0 jika salah
 
     setTimeout(() => {
       router.push({

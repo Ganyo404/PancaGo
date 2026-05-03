@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserStore } from '../store/useUserStore';
+import { useProgressStore } from '../store/useProgressStore';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -53,13 +54,18 @@ export default function QuizResultScreen() {
   const insets = useSafeAreaInsets();
 
   const { points, addPoints } = useUserStore();
+  const { completeQuiz } = useProgressStore();
 
   const finalScore = parseInt(params.finalScore || '0', 10);
+  const quizId = params.quizId;
 
-  // Simpan poin ke store (hanya sekali saat layar ini pertama muncul)
+  // Simpan poin ke store dan tandai kuis selesai (hanya sekali saat layar ini pertama muncul)
   React.useEffect(() => {
     if (finalScore > 0) {
       addPoints(finalScore);
+    }
+    if (quizId) {
+      completeQuiz(quizId);
     }
   }, []);
 

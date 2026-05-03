@@ -151,6 +151,9 @@ export default function MisiScreen() {
 
   const pathD = buildPath(NODES);
 
+  // Temukan node aktif (terbuka tapi belum selesai) = misi yang perlu dikerjakan
+  const activeNode = NODES.find((n) => n.active) ?? NODES[NODES.length - 1];
+
   return (
     <View style={styles.container}>
 
@@ -243,7 +246,7 @@ export default function MisiScreen() {
       {/* ── FAB ──────────────────────────────────────────────────────────── */}
       <Pressable
         style={[styles.fab, { bottom: 90 + insets.bottom }]}
-        onPress={() => router.push('/quiz')}
+        onPress={() => router.push(`/isi-misi?id=${activeNode.id}`)}
       >
         <MaterialIcons name="rocket-launch" size={26} color="#fff" />
       </Pressable>

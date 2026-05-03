@@ -51,13 +51,17 @@ export const useUserStore = create((set, get) => ({
     set((state) => {
       const newPoints = state.points + amount;
       const newLevel = calcLevel(newPoints);
-      const next = {
-        ...state,
-        points: newPoints,
-        level: newLevel,
-        quizDoneToday: true,
-        streak: state.quizDoneToday ? state.streak : state.streak + 1,
-      };
+      const next = { ...state, points: newPoints, level: newLevel, quizDoneToday: true };
+      get()._save(next);
+      return next;
+    });
+  },
+
+  // ─── Catat jawaban quiz (tambah streak jika benar, reset jika salah) ─────────
+  recordAnswer: (isCorrect) => {
+    set((state) => {
+      const newStreak = isCorrect ? state.streak + 1 : 0;
+      const next = { ...state, streak: newStreak };
       get()._save(next);
       return next;
     });
