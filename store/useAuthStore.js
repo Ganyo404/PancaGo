@@ -1,6 +1,16 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
+// Import di sini untuk hindari circular dependency saat runtime
+// useQuizStore tidak import useAuthStore, jadi aman
+let _quizStoreRef = null;
+function getQuizStore() {
+  if (!_quizStoreRef) {
+    _quizStoreRef = require('../store/useQuizStore').useQuizStore;
+  }
+  return _quizStoreRef;
+}
+
 /**
  * useAuthStore
  * Menangani autentikasi (register, login, logout) via Supabase.
@@ -166,10 +176,7 @@ export const useAuthStore = create((set, get) => ({
   // ── Logout ─────────────────────────────────────────────────────────────────
   logout: async () => {
     await supabase.auth.signOut();
-    // Import di sini untuk hindari circular dependency
-    const quizStoreModule = require('../store/useQuizStore');
-    const store = quizStoreModule.useQuizStore ?? quizStoreModule.default;
-    if (store?.getState) store.getState().resetQuizCache();
+    try { getQuizStore()?.getState()?.resetQuizCache(); } catch (_) {}
     set({ session: null, profile: null, error: null });
   },
 

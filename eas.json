@@ -1,0 +1,49 @@
+{
+  "cli": {
+    "version": ">= 18.9.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://wqiqfcaiiizfxsfyxzai.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxaXFmY2FpaWl6ZnhzZnl4emFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzY2OTcsImV4cCI6MjA5Mjg1MjY5N30.-JU1EmdT7UQLzG64VgpJcRFLUGJOBhWNsZshzzXrTH0"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://wqiqfcaiiizfxsfyxzai.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxaXFmY2FpaWl6ZnhzZnl4emFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzY2OTcsImV4cCI6MjA5Mjg1MjY5N30.-JU1EmdT7UQLzG64VgpJcRFLUGJOBhWNsZshzzXrTH0"
+      }
+    },
+    "apk": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://wqiqfcaiiizfxsfyxzai.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxaXFmY2FpaWl6ZnhzZnl4emFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzY2OTcsImV4cCI6MjA5Mjg1MjY5N30.-JU1EmdT7UQLzG64VgpJcRFLUGJOBhWNsZshzzXrTH0"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://wqiqfcaiiizfxsfyxzai.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxaXFmY2FpaWl6ZnhzZnl4emFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzY2OTcsImV4cCI6MjA5Mjg1MjY5N30.-JU1EmdT7UQLzG64VgpJcRFLUGJOBhWNsZshzzXrTH0"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

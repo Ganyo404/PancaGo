@@ -63,17 +63,25 @@ export default function QuizResultScreen() {
   const passed = params.passed === 'true';
   const silaNum = params.silaNum || '1';
 
-  // Simpan poin ke store dan tandai kuis selesai (hanya sekali saat layar ini pertama muncul)
+  // Ref untuk pastikan sync hanya jalan sekali, tidak infinite loop
+  const hasSynced = useRef(false);
+
   React.useEffect(() => {
+    if (hasSynced.current) return;
+    hasSynced.current = true;
+
     const syncData = async () => {
-      if (finalScore > 0) {
-        const { points: newPoints, level: newLevel } = addPoints(finalScore);
-        await updateProfile({ points: newPoints, level: newLevel });
-      }
-      // Hanya tandai selesai (unlock quiz berikutnya) jika skor > 0
-      if (quizId && passed) {
-        const newQuizIds = completeQuiz(quizId);
-        await updateProgress({ completed_quiz_ids: newQuizIds });
+      try {
+        if (finalScore > 0) {
+          const { points: newPoints, level: newLevel } = addPoints(finalScore);
+          await updateProfile({ points: newPoints, level: newLevel });
+        }
+        if (quizId && passed) {
+          const newQuizIds = completeQuiz(quizId);
+          await updateProgress({ completed_quiz_ids: newQuizIds });
+        }
+      } catch (_) {
+        // Sync gagal — tidak crash app, data lokal tetap benar
       }
     };
     syncData();

@@ -80,6 +80,7 @@ export default function QuizQuestionScreen() {
 
   const [quizSet, setQuizSet] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [score, setScore] = useState(prevScore);
   const [answered, setAnswered] = useState(false);
@@ -87,7 +88,7 @@ export default function QuizQuestionScreen() {
 
   // Fetch soal dari Supabase (atau ambil dari cache)
   useEffect(() => {
-    if (!quizId) return;
+    if (!quizId) { setLoading(false); setLoadError(true); return; }
     const cached = getQuizById(quizId);
     if (cached) {
       setQuizSet(cached);
@@ -95,17 +96,41 @@ export default function QuizQuestionScreen() {
       return;
     }
     setLoading(true);
-    loadQuizById(quizId).then((q) => {
-      setQuizSet(q);
-      setLoading(false);
-    });
+    setLoadError(false);
+    loadQuizById(quizId)
+      .then((q) => {
+        if (q) { setQuizSet(q); }
+        else { setLoadError(true); }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoadError(true);
+        setLoading(false);
+      });
   }, [quizId]);
 
-  if (loading || !quizSet) {
+  if (loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color="#52651E" />
         <Text style={{ marginTop: 12, color: '#5E6644', fontWeight: '600' }}>Memuat soal...</Text>
+      </View>
+    );
+  }
+
+  if (loadError || !quizSet) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', paddingTop: insets.top, paddingHorizontal: 32 }]}>
+        <MaterialIcons name="wifi-off" size={48} color="#9EA39A" />
+        <Text style={{ marginTop: 12, color: '#5E6644', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
+          Gagal memuat soal. Periksa koneksimu.
+        </Text>
+        <Pressable
+          onPress={() => { setLoading(true); setLoadError(false); loadQuizById(quizId).then(q => { setQuizSet(q); setLoading(false); }).catch(() => { setLoadError(true); setLoading(false); }); }}
+          style={{ marginTop: 16, backgroundColor: '#52651E', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 999 }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '800' }}>Coba Lagi</Text>
+        </Pressable>
       </View>
     );
   }

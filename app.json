@@ -8,10 +8,25 @@
     "scheme": "pancago",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+
+    "runtimeVersion": {
+      "policy": "appVersion"
     },
+
+    "updates": {
+      "url": "https://u.expo.dev/ecf1c379-1837-4eeb-8b7b-0d1db169bbba",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ganyo404.pancago"
+    },
+
     "android": {
+      "package": "com.ganyo404.pancago",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -21,10 +36,12 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+
     "web": {
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
       [
@@ -39,11 +56,25 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-updates",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+
+    "extra": {
+      "supabaseUrl": "https://wqiqfcaiiizfxsfyxzai.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxaXFmY2FpaWl6ZnhzZnl4emFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzY2OTcsImV4cCI6MjA5Mjg1MjY5N30.-JU1EmdT7UQLzG64VgpJcRFLUGJOBhWNsZshzzXrTH0",
+      "router": {},
+      "eas": {
+        "projectId": "ecf1c379-1837-4eeb-8b7b-0d1db169bbba"
+      }
+    },
+
+    "owner": "ganyo404"
   }
 }

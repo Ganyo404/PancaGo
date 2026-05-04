@@ -24,24 +24,6 @@ const C = {
   onTertiary: '#003730',
 };
 
-// ── Pagination dots ───────────────────────────────────────────────────────────
-function PaginationDots() {
-  const dots = [false, false, true, false, false]; // index 2 is active
-  return (
-    <View style={styles.dotsRow}>
-      {dots.map((active, i) => (
-        <View
-          key={i}
-          style={[
-            styles.dot,
-            active ? styles.dotActive : styles.dotInactive,
-          ]}
-        />
-      ))}
-    </View>
-  );
-}
-
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function QuizFeedbackScreen() {
   const router = useRouter();
