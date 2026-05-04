@@ -1,15 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useRef } from 'react';
 import {
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/useAuthStore';
@@ -25,6 +25,7 @@ const C = {
   secondary: '#5E6644',
   surface: '#FAFAF3',
   surfaceLowest: '#FFFFFF',
+  surfaceContainerLow: '#F4F5EE',
   onSurface: '#1B1C18',
   brown: '#564334',
   darkGreen: '#3b4d06',
